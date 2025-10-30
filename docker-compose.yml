@@ -1,0 +1,59 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: db_dev
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: cms_data_storytelling
+      MYSQL_USER: symfony
+      MYSQL_PASSWORD: symfony
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+  backend:
+    build:
+      context: ./Backend_CMS
+      dockerfile: dockerfile.dev
+    container_name: backend_dev
+    ports:
+      - "8080:8000"
+    environment:
+      DATABASE_URL: "mysql://symfony:symfony@db:3306/cms_data_storytelling"
+      APP_ENV: dev
+    volumes:
+      - ./Backend_CMS:/var/www/symfony
+    depends_on:
+      - db
+
+  frontend:
+    build:
+      context: ./Frontend_CMS
+      dockerfile: dockerfile.dev
+    container_name: frontend_dev
+    ports:
+      - "5173:5173"
+    environment:
+      REACT_APP_API_URL: "http://backend:80/api"
+    volumes:
+      - ./Frontend_CMS:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: phpmyadmin_dev
+    restart: always
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: db
+      PMA_USER: root
+      PMA_PASSWORD: root
+    depends_on:
+      - db
+
+volumes:
+  db_data:
