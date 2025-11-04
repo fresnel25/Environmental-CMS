@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\DatasetRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -34,6 +36,24 @@ class Dataset
 
     #[ORM\Column]
     private ?\DateTimeImmutable $updated_at = null;
+
+    /**
+     * @var Collection<int, ColonneDataset>
+     */
+    #[ORM\OneToMany(targetEntity: ColonneDataset::class, mappedBy: 'dataset')]
+    private Collection $colonnes;
+
+    /**
+     * @var Collection<int, Visualisation>
+     */
+    #[ORM\OneToMany(targetEntity: Visualisation::class, mappedBy: 'dataset')]
+    private Collection $visualisations;
+
+    public function __construct()
+    {
+        $this->colonnes = new ArrayCollection();
+        $this->visualisations = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -120,6 +140,66 @@ class Dataset
     public function setUpdatedAt(\DateTimeImmutable $updated_at): static
     {
         $this->updated_at = $updated_at;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ColonneDataset>
+     */
+    public function getColonnes(): Collection
+    {
+        return $this->colonnes;
+    }
+
+    public function addColonne(ColonneDataset $colonne): static
+    {
+        if (!$this->colonnes->contains($colonne)) {
+            $this->colonnes->add($colonne);
+            $colonne->setDataset($this);
+        }
+
+        return $this;
+    }
+
+    public function removeColonne(ColonneDataset $colonne): static
+    {
+        if ($this->colonnes->removeElement($colonne)) {
+            // set the owning side to null (unless already changed)
+            if ($colonne->getDataset() === $this) {
+                $colonne->setDataset(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Visualisation>
+     */
+    public function getVisualisations(): Collection
+    {
+        return $this->visualisations;
+    }
+
+    public function addVisualisation(Visualisation $visualisation): static
+    {
+        if (!$this->visualisations->contains($visualisation)) {
+            $this->visualisations->add($visualisation);
+            $visualisation->setDataset($this);
+        }
+
+        return $this;
+    }
+
+    public function removeVisualisation(Visualisation $visualisation): static
+    {
+        if ($this->visualisations->removeElement($visualisation)) {
+            // set the owning side to null (unless already changed)
+            if ($visualisation->getDataset() === $this) {
+                $visualisation->setDataset(null);
+            }
+        }
 
         return $this;
     }

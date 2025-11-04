@@ -22,6 +22,9 @@ class Note
     #[ORM\Column]
     private ?\DateTimeImmutable $updated_at = null;
 
+    #[ORM\ManyToOne(inversedBy: 'notes')]
+    private ?Bloc $bloc = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -59,6 +62,18 @@ class Note
     public function setUpdatedAt(\DateTimeImmutable $updated_at): static
     {
         $this->updated_at = $updated_at;
+
+        return $this;
+    }
+
+    public function getBloc(): ?Bloc
+    {
+        return $this->bloc;
+    }
+
+    public function setBloc(?Bloc $bloc): static
+    {
+        $this->bloc = $bloc;
 
         return $this;
     }
