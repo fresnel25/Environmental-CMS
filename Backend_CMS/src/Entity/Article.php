@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\ArticleRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -34,6 +36,17 @@ class Article
 
     #[ORM\Column]
     private ?\DateTimeImmutable $updated_at = null;
+
+    /**
+     * @var Collection<int, Bloc>
+     */
+    #[ORM\OneToMany(targetEntity: Bloc::class, mappedBy: 'article', orphanRemoval: true)]
+    private Collection $blocs;
+
+    public function __construct()
+    {
+        $this->blocs = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -120,6 +133,36 @@ class Article
     public function setUpdatedAt(\DateTimeImmutable $updated_at): static
     {
         $this->updated_at = $updated_at;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Bloc>
+     */
+    public function getBlocs(): Collection
+    {
+        return $this->blocs;
+    }
+
+    public function addBloc(Bloc $bloc): static
+    {
+        if (!$this->blocs->contains($bloc)) {
+            $this->blocs->add($bloc);
+            $bloc->setArticle($this);
+        }
+
+        return $this;
+    }
+
+    public function removeBloc(Bloc $bloc): static
+    {
+        if ($this->blocs->removeElement($bloc)) {
+            // set the owning side to null (unless already changed)
+            if ($bloc->getArticle() === $this) {
+                $bloc->setArticle(null);
+            }
+        }
 
         return $this;
     }

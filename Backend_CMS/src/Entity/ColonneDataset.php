@@ -25,6 +25,9 @@ class ColonneDataset
     #[ORM\Column]
     private ?\DateTimeImmutable $updated_at = null;
 
+    #[ORM\ManyToOne(inversedBy: 'colonnes')]
+    private ?Dataset $dataset = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -74,6 +77,18 @@ class ColonneDataset
     public function setUpdatedAt(\DateTimeImmutable $updated_at): static
     {
         $this->updated_at = $updated_at;
+
+        return $this;
+    }
+
+    public function getDataset(): ?Dataset
+    {
+        return $this->dataset;
+    }
+
+    public function setDataset(?Dataset $dataset): static
+    {
+        $this->dataset = $dataset;
 
         return $this;
     }

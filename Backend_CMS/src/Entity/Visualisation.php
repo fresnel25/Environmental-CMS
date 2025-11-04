@@ -35,6 +35,12 @@ class Visualisation
     #[ORM\Column]
     private ?\DateTimeImmutable $updated_at = null;
 
+    #[ORM\OneToOne(mappedBy: 'visualisation', cascade: ['persist', 'remove'])]
+    private ?Bloc $bloc = null;
+
+    #[ORM\ManyToOne(inversedBy: 'visualisations')]
+    private ?Dataset $dataset = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -120,6 +126,40 @@ class Visualisation
     public function setUpdatedAt(\DateTimeImmutable $updated_at): static
     {
         $this->updated_at = $updated_at;
+
+        return $this;
+    }
+
+    public function getBloc(): ?Bloc
+    {
+        return $this->bloc;
+    }
+
+    public function setBloc(?Bloc $bloc): static
+    {
+        // unset the owning side of the relation if necessary
+        if ($bloc === null && $this->bloc !== null) {
+            $this->bloc->setVisualisation(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if ($bloc !== null && $bloc->getVisualisation() !== $this) {
+            $bloc->setVisualisation($this);
+        }
+
+        $this->bloc = $bloc;
+
+        return $this;
+    }
+
+    public function getDataset(): ?Dataset
+    {
+        return $this->dataset;
+    }
+
+    public function setDataset(?Dataset $dataset): static
+    {
+        $this->dataset = $dataset;
 
         return $this;
     }
