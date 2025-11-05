@@ -1,24 +1,22 @@
-# --- Backend Symfony (DEV) ---
-FROM php:8.3-cli
+# Utiliser PHP 8.3 avec FPM
+FROM php:8.3-fpm
 
 WORKDIR /var/www/symfony
 
-# Installer dépendances système et extensions PHP courantes
+# Installer dépendances système et extensions PHP
 RUN apt-get update && apt-get install -y \
-    git unzip libpq-dev libzip-dev zip libicu-dev libxml2-dev \
-    && docker-php-ext-install pdo pdo_mysql intl opcache zip
+    git unzip libzip-dev zip libicu-dev libxml2-dev \
+    libonig-dev curl nginx supervisor \
+    && docker-php-ext-install pdo pdo_mysql intl opcache zip mbstring
 
 # Installer Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Copier les fichiers du projet Symfony
+# Copier le code du projet
 COPY . .
 
-# Installer les dépendances PHP sans interaction
+# Installer les dépendances PHP
 RUN composer install --no-interaction --no-progress --prefer-dist
 
-# Exposer le port du serveur Symfony
+# Supprimer le serveur PHP intégré, on utilisera Nginx + PHP-FPM
 EXPOSE 8000
-
-# Lancer le serveur Symfony pour le développement
-CMD ["php", "-S", "0.0.0.0:8000", "-t", "public"]

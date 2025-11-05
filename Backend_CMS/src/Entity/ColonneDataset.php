@@ -2,10 +2,12 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
 use App\Repository\ColonneDatasetRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ColonneDatasetRepository::class)]
+#[ApiResource()]
 class ColonneDataset
 {
     #[ORM\Id]
