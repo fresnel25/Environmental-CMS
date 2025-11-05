@@ -1,3 +1,4 @@
+
 services:
   db:
     image: mysql:8.0
@@ -17,15 +18,24 @@ services:
       context: ./Backend_CMS
       dockerfile: dockerfile.dev
     container_name: backend_dev
-    ports:
-      - "8080:8000"
+    volumes:
+      - ./Backend_CMS:/var/www/symfony
     environment:
       DATABASE_URL: "mysql://symfony:symfony@db:3306/cms_data_storytelling"
       APP_ENV: dev
-    volumes:
-      - ./Backend_CMS:/var/www/symfony
     depends_on:
       - db
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx_dev
+    ports:
+      - "8080:80"
+    volumes:
+      - ./Backend_CMS:/var/www/symfony
+      - ./Backend_CMS/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - backend
 
   frontend:
     build:
@@ -35,12 +45,12 @@ services:
     ports:
       - "5173:5173"
     environment:
-      REACT_APP_API_URL: "http://backend:80/api"
+      REACT_APP_API_URL: "http://nginx:80/api"
     volumes:
       - ./Frontend_CMS:/app
       - /app/node_modules
     depends_on:
-      - backend
+      - nginx
 
   phpmyadmin:
     image: phpmyadmin:latest
