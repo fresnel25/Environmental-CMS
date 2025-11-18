@@ -1,0 +1,45 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Bloc index{% endblock %}
+
+{% block body %}
+    <h1>Bloc index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Type_bloc</th>
+                <th>Position</th>
+                <th>Titre</th>
+                <th>Contenu_json</th>
+                <th>Created_at</th>
+                <th>Updated_at</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for bloc in blocs %}
+            <tr>
+                <td>{{ bloc.id }}</td>
+                <td>{{ bloc.typeBloc }}</td>
+                <td>{{ bloc.position }}</td>
+                <td>{{ bloc.titre }}</td>
+                <td>{{ bloc.contenuJson ? bloc.contenuJson|json_encode : '' }}</td>
+                <td>{{ bloc.createdAt ? bloc.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ bloc.updatedAt ? bloc.updatedAt|date('Y-m-d H:i:s') : '' }}</td>
+                <td>
+                    <a href="{{ path('app_bloc_show', {'id': bloc.id}) }}">show</a>
+                    <a href="{{ path('app_bloc_edit', {'id': bloc.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="8">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_bloc_new') }}">Create new</a>
+{% endblock %}

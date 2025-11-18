@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Visualisation index{% endblock %}
+
+{% block body %}
+    <h1>Visualisation index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Type_visualisation</th>
+                <th>Correspondance_json</th>
+                <th>Style_json</th>
+                <th>Filter_json</th>
+                <th>Note</th>
+                <th>Created_at</th>
+                <th>Updated_at</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for visualisation in visualisations %}
+            <tr>
+                <td>{{ visualisation.id }}</td>
+                <td>{{ visualisation.typeVisualisation }}</td>
+                <td>{{ visualisation.correspondanceJson ? visualisation.correspondanceJson|json_encode : '' }}</td>
+                <td>{{ visualisation.styleJson ? visualisation.styleJson|json_encode : '' }}</td>
+                <td>{{ visualisation.filterJson ? visualisation.filterJson|json_encode : '' }}</td>
+                <td>{{ visualisation.note }}</td>
+                <td>{{ visualisation.createdAt ? visualisation.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ visualisation.updatedAt ? visualisation.updatedAt|date('Y-m-d H:i:s') : '' }}</td>
+                <td>
+                    <a href="{{ path('app_visualisation_show', {'id': visualisation.id}) }}">show</a>
+                    <a href="{{ path('app_visualisation_edit', {'id': visualisation.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="9">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_visualisation_new') }}">Create new</a>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}ColonneDataset{% endblock %}
+
+{% block body %}
+    <h1>ColonneDataset</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ colonne_dataset.id }}</td>
+            </tr>
+            <tr>
+                <th>Nom_colonne</th>
+                <td>{{ colonne_dataset.nomColonne }}</td>
+            </tr>
+            <tr>
+                <th>Type_colonne</th>
+                <td>{{ colonne_dataset.typeColonne }}</td>
+            </tr>
+            <tr>
+                <th>Created_at</th>
+                <td>{{ colonne_dataset.createdAt ? colonne_dataset.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Updated_at</th>
+                <td>{{ colonne_dataset.updatedAt ? colonne_dataset.updatedAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_colonne_dataset_index') }}">back to list</a>
+
+    <a href="{{ path('app_colonne_dataset_edit', {'id': colonne_dataset.id}) }}">edit</a>
+
+    {{ include('colonne_dataset/_delete_form.html.twig') }}
+{% endblock %}
