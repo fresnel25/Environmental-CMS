@@ -1,0 +1,50 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Visualisation{% endblock %}
+
+{% block body %}
+    <h1>Visualisation</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ visualisation.id }}</td>
+            </tr>
+            <tr>
+                <th>Type_visualisation</th>
+                <td>{{ visualisation.typeVisualisation }}</td>
+            </tr>
+            <tr>
+                <th>Correspondance_json</th>
+                <td>{{ visualisation.correspondanceJson ? visualisation.correspondanceJson|json_encode : '' }}</td>
+            </tr>
+            <tr>
+                <th>Style_json</th>
+                <td>{{ visualisation.styleJson ? visualisation.styleJson|json_encode : '' }}</td>
+            </tr>
+            <tr>
+                <th>Filter_json</th>
+                <td>{{ visualisation.filterJson ? visualisation.filterJson|json_encode : '' }}</td>
+            </tr>
+            <tr>
+                <th>Note</th>
+                <td>{{ visualisation.note }}</td>
+            </tr>
+            <tr>
+                <th>Created_at</th>
+                <td>{{ visualisation.createdAt ? visualisation.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Updated_at</th>
+                <td>{{ visualisation.updatedAt ? visualisation.updatedAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_visualisation_index') }}">back to list</a>
+
+    <a href="{{ path('app_visualisation_edit', {'id': visualisation.id}) }}">edit</a>
+
+    {{ include('visualisation/_delete_form.html.twig') }}
+{% endblock %}

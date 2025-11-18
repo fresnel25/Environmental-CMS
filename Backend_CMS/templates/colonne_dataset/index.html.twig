@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}ColonneDataset index{% endblock %}
+
+{% block body %}
+    <h1>ColonneDataset index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Nom_colonne</th>
+                <th>Type_colonne</th>
+                <th>Created_at</th>
+                <th>Updated_at</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for colonne_dataset in colonne_datasets %}
+            <tr>
+                <td>{{ colonne_dataset.id }}</td>
+                <td>{{ colonne_dataset.nomColonne }}</td>
+                <td>{{ colonne_dataset.typeColonne }}</td>
+                <td>{{ colonne_dataset.createdAt ? colonne_dataset.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ colonne_dataset.updatedAt ? colonne_dataset.updatedAt|date('Y-m-d H:i:s') : '' }}</td>
+                <td>
+                    <a href="{{ path('app_colonne_dataset_show', {'id': colonne_dataset.id}) }}">show</a>
+                    <a href="{{ path('app_colonne_dataset_edit', {'id': colonne_dataset.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="6">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_colonne_dataset_new') }}">Create new</a>
+{% endblock %}

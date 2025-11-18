@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New ColonneDataset{% endblock %}
+
+{% block body %}
+    <h1>Create new ColonneDataset</h1>
+
+    {{ include('colonne_dataset/_form.html.twig') }}
+
+    <a href="{{ path('app_colonne_dataset_index') }}">back to list</a>
+{% endblock %}

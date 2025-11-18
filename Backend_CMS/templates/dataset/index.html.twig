@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dataset index{% endblock %}
+
+{% block body %}
+    <h1>Dataset index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Titre</th>
+                <th>Description</th>
+                <th>Type_source</th>
+                <th>Url_source</th>
+                <th>Delimiter</th>
+                <th>Created_at</th>
+                <th>Updated_at</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for dataset in datasets %}
+            <tr>
+                <td>{{ dataset.id }}</td>
+                <td>{{ dataset.titre }}</td>
+                <td>{{ dataset.description }}</td>
+                <td>{{ dataset.typeSource }}</td>
+                <td>{{ dataset.urlSource }}</td>
+                <td>{{ dataset.delimiter }}</td>
+                <td>{{ dataset.createdAt ? dataset.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ dataset.updatedAt ? dataset.updatedAt|date('Y-m-d H:i:s') : '' }}</td>
+                <td>
+                    <a href="{{ path('app_dataset_show', {'id': dataset.id}) }}">show</a>
+                    <a href="{{ path('app_dataset_edit', {'id': dataset.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="9">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_dataset_new') }}">Create new</a>
+{% endblock %}

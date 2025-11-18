@@ -1,0 +1,50 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dataset{% endblock %}
+
+{% block body %}
+    <h1>Dataset</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ dataset.id }}</td>
+            </tr>
+            <tr>
+                <th>Titre</th>
+                <td>{{ dataset.titre }}</td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>{{ dataset.description }}</td>
+            </tr>
+            <tr>
+                <th>Type_source</th>
+                <td>{{ dataset.typeSource }}</td>
+            </tr>
+            <tr>
+                <th>Url_source</th>
+                <td>{{ dataset.urlSource }}</td>
+            </tr>
+            <tr>
+                <th>Delimiter</th>
+                <td>{{ dataset.delimiter }}</td>
+            </tr>
+            <tr>
+                <th>Created_at</th>
+                <td>{{ dataset.createdAt ? dataset.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Updated_at</th>
+                <td>{{ dataset.updatedAt ? dataset.updatedAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_dataset_index') }}">back to list</a>
+
+    <a href="{{ path('app_dataset_edit', {'id': dataset.id}) }}">edit</a>
+
+    {{ include('dataset/_delete_form.html.twig') }}
+{% endblock %}
