@@ -5,8 +5,13 @@ WORKDIR /var/www/symfony
 RUN apt-get update && apt-get install -y \
     git unzip libzip-dev zip libicu-dev libxml2-dev \
     libonig-dev curl \
-    && docker-php-ext-install pdo pdo_mysql intl zip mbstring
+    && docker-php-ext-install pdo pdo_mysql intl zip mbstring \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+COPY . /var/www/symfony
+
+RUN chown -R www-data:www-data /var/www/symfony
 
 CMD ["php-fpm"]
