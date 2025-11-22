@@ -1,10 +1,10 @@
 import ButtonForm from "./composant_formulaire/ButtonForm";
-import InputForm from "./composant_formulaire/InputForm";
-import image1 from "../../../public/assets/img_login_page.svg";
 import ImageForm from "./composant_formulaire/ImageForm";
+import InputForm from "./composant_formulaire/InputForm";
 import TitleForm from "./composant_formulaire/TitleForm";
+import image1 from "../../../public/assets/img_login_page.svg";
 
-const Login = () => {
+const Register = () => {
   return (
     <div className="min-h-screen  flex items-center justify-center">
       <div className="card card-xl min-h-[500px] card-border card-side bg-base-100 shadow-xl rounded-xl overflow-hidden p-0 gap-15">
@@ -22,15 +22,16 @@ const Login = () => {
         </div>
 
         {/* Colonne formulaire */}
-        <div className="card-body p-5 m-0 flex flex-col gap-7 justify-center">
-          <TitleForm title={"Connexion"} />
+        <div className="card-body p-5 m-0 flex flex-col gap-7">
+          <TitleForm title={"Inscription"} />
+          <InputForm label="Nom" placeholder="Entrer votre nom" />
           <InputForm label="Email" placeholder="Entrer votre email" />
           <InputForm
             label="Mot de Passe"
             placeholder="Entrer votre mot de passe"
           />
           <div className="flex justify-end p-4">
-            <ButtonForm title="Connexion" />
+            <ButtonForm title="Inscription" />
           </div>
         </div>
       </div>
@@ -38,4 +39,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Register;
