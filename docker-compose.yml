@@ -53,18 +53,18 @@ services:
     depends_on:
       - nginx
 
-    phpmyadmin:
-      image: phpmyadmin:latest
-      container_name: phpmyadmin_dev
-      restart: always
-      ports:
-        - "8081:80"
-      environment:
-        PMA_HOST: db
-        PMA_USER: root
-        PMA_PASSWORD: root
-      depends_on:
-        - db
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: phpmyadmin_dev
+    restart: always
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: db
+      PMA_USER: root
+      PMA_PASSWORD: root
+    depends_on:
+      - db
 
 volumes:
   db_data:

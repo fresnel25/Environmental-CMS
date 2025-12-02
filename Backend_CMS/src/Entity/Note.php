@@ -3,11 +3,22 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
 use App\Repository\NoteRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: NoteRepository::class)]
-#[ApiResource()]
+#[ApiResource(operations: [
+    new GetCollection(security: "is_granted('PUBLIC_ACCESS')"),
+    new Get(security: "is_granted('PUBLIC_ACCESS')"),
+    new Post(securityPostDenormalize: "is_granted('ROLE_ABONNE') or is_granted('ROLE_ADMINISTRATEUR')"),
+    new Patch(security: "is_granted('ROLE_ABONNE') and object.getUser() == user or is_granted('ROLE_ADMINISTRATEUR')"),
+    new Delete(security: "is_granted('ROLE_ADMINISTRATEUR')")
+])]
 class Note
 {
     #[ORM\Id]

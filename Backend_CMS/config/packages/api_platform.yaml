@@ -1,10 +1,29 @@
 # config/packages/api_platform.yaml
 api_platform:
-    title: 'Hello API Platform'
-    version: '1.0.0'
-    defaults:
-        stateless: true
-        cache_headers:
-            vary: ['Content-Type', 'Authorization', 'Origin']
-    enable_swagger_ui: true
-    enable_docs: true   # Active la documentation OpenAPI
+  title: "Hello API Platform"
+  version: "1.0.0"
+
+  defaults:
+    stateless: true
+    cache_headers:
+      vary: ["Content-Type", "Authorization", "Origin"]
+
+  enable_swagger_ui: true
+  enable_docs: true
+
+  # On force Swagger à utiliser OpenAPI v3
+  swagger:
+    versions: [3]
+
+    # On ajoute un bouton "Authorize" pour envoyer le JWT dans les headers
+    api_keys:
+      JWT:
+        name: Authorization
+        type: header
+
+  mapping:
+    paths:
+      - "%kernel.project_dir%/src/Entity"
+
+  patch_formats:
+    json: ["application/merge-patch+json"]
