@@ -41,8 +41,9 @@ class Dataset
     #[ORM\Column(length: 255)]
     private ?string $url_source = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $delimiter = null;
+
+    #[ORM\Column(length: 5, options: ['default' => ';'])]
+    private ?string $delimiter = ';';
 
     #[ORM\Column]
     private ?\DateTimeImmutable $created_at = null;
@@ -61,6 +62,12 @@ class Dataset
      */
     #[ORM\OneToMany(targetEntity: Visualisation::class, mappedBy: 'dataset')]
     private Collection $visualisations;
+
+    #[ORM\ManyToOne(inversedBy: 'datasets')]
+    private ?User $created_by = null;
+
+    #[ORM\ManyToOne(inversedBy: 'datasets')]
+    private ?Tenant $tenant = null;
 
     public function __construct()
     {
@@ -213,6 +220,30 @@ class Dataset
                 $visualisation->setDataset(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getCreatedBy(): ?User
+    {
+        return $this->created_by;
+    }
+
+    public function setCreatedBy(?User $created_by): static
+    {
+        $this->created_by = $created_by;
+
+        return $this;
+    }
+
+    public function getTenant(): ?Tenant
+    {
+        return $this->tenant;
+    }
+
+    public function setTenant(?Tenant $tenant): static
+    {
+        $this->tenant = $tenant;
 
         return $this;
     }

@@ -41,6 +41,12 @@ class ColonneDataset
     #[ORM\ManyToOne(inversedBy: 'colonnes')]
     private ?Dataset $dataset = null;
 
+    #[ORM\ManyToOne(inversedBy: 'colonneDatasets')]
+    private ?Tenant $tenant = null;
+
+    #[ORM\ManyToOne(inversedBy: 'colonneDatasets')]
+    private ?User $created_by = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -102,6 +108,30 @@ class ColonneDataset
     public function setDataset(?Dataset $dataset): static
     {
         $this->dataset = $dataset;
+
+        return $this;
+    }
+
+    public function getTenant(): ?Tenant
+    {
+        return $this->tenant;
+    }
+
+    public function setTenant(?Tenant $tenant): static
+    {
+        $this->tenant = $tenant;
+
+        return $this;
+    }
+
+    public function getCreatedBy(): ?User
+    {
+        return $this->created_by;
+    }
+
+    public function setCreatedBy(?User $created_by): static
+    {
+        $this->created_by = $created_by;
 
         return $this;
     }

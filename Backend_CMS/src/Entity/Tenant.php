@@ -3,118 +3,92 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\Post;
-use App\Controller\UserController;
-use App\Repository\UserRepository;
+use App\Repository\TenantRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
 
-#[ORM\Entity(repositoryClass: UserRepository::class)]
-#[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
-#[ApiResource(operations: [
-    new Post(
-        name: 'register',
-        uriTemplate: '/register',
-        controller: UserController::class,
-        security: "is_granted('PUBLIC_ACCESS')"
-    ),
-    new \ApiPlatform\Metadata\GetCollection(
-        security: "is_granted('ROLE_ADMIN')"
-    ),
-    new \ApiPlatform\Metadata\Get(
-        security: "is_granted('ROLE_ADMIN') or object == user"
-    ),
-    new \ApiPlatform\Metadata\Put(
-        security: "is_granted('ROLE_ADMIN') or object == user"
-    ),
-    new \ApiPlatform\Metadata\Delete(
-        security: "is_granted('ROLE_ADMIN')"
-    )
-])]
-class User implements UserInterface, PasswordAuthenticatedUserInterface
+#[ORM\Entity(repositoryClass: TenantRepository::class)]
+#[ApiResource]
+class Tenant
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 180)]
-    private ?string $email = null;
-
-    /**
-     * @var list<string> The user roles
-     */
-    #[ORM\Column]
-    private array $roles = [];
-
-    /**
-     * @var string The hashed password
-     */
-    #[ORM\Column]
-    private ?string $password = null;
-
     #[ORM\Column(length: 255)]
     private ?string $nom = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $prenom = null;
+    private ?string $statut = null;
 
-    #[ORM\ManyToOne(inversedBy: 'users')]
-    private ?Tenant $tenant = null;
+    #[ORM\Column]
+    private ?\DateTimeImmutable $created_at = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $updated_at = null;
+
+    #[ORM\ManyToOne(inversedBy: 'tenants')]
+    private ?Plan $plan = null;
+
+    /**
+     * @var Collection<int, User>
+     */
+    #[ORM\OneToMany(targetEntity: User::class, mappedBy: 'tenant')]
+    private Collection $users;
 
     /**
      * @var Collection<int, Article>
      */
-    #[ORM\OneToMany(targetEntity: Article::class, mappedBy: 'created_by')]
+    #[ORM\OneToMany(targetEntity: Article::class, mappedBy: 'tenant')]
     private Collection $articles;
 
     /**
      * @var Collection<int, Note>
      */
-    #[ORM\OneToMany(targetEntity: Note::class, mappedBy: 'user')]
+    #[ORM\OneToMany(targetEntity: Note::class, mappedBy: 'tenant')]
     private Collection $notes;
 
     /**
      * @var Collection<int, Bloc>
      */
-    #[ORM\OneToMany(targetEntity: Bloc::class, mappedBy: 'created_by')]
+    #[ORM\OneToMany(targetEntity: Bloc::class, mappedBy: 'tenant')]
     private Collection $blocs;
 
     /**
      * @var Collection<int, Media>
      */
-    #[ORM\OneToMany(targetEntity: Media::class, mappedBy: 'uploaded_by')]
+    #[ORM\OneToMany(targetEntity: Media::class, mappedBy: 'tenant')]
     private Collection $media;
 
     /**
      * @var Collection<int, ColonneDataset>
      */
-    #[ORM\OneToMany(targetEntity: ColonneDataset::class, mappedBy: 'created_by')]
+    #[ORM\OneToMany(targetEntity: ColonneDataset::class, mappedBy: 'tenant')]
     private Collection $colonneDatasets;
 
     /**
      * @var Collection<int, Dataset>
      */
-    #[ORM\OneToMany(targetEntity: Dataset::class, mappedBy: 'created_by')]
+    #[ORM\OneToMany(targetEntity: Dataset::class, mappedBy: 'tenant')]
     private Collection $datasets;
 
     /**
      * @var Collection<int, Visualisation>
      */
-    #[ORM\OneToMany(targetEntity: Visualisation::class, mappedBy: 'created_by')]
+    #[ORM\OneToMany(targetEntity: Visualisation::class, mappedBy: 'tenant')]
     private Collection $visualisations;
 
     /**
      * @var Collection<int, Theme>
      */
-    #[ORM\OneToMany(targetEntity: Theme::class, mappedBy: 'created_by')]
+    #[ORM\OneToMany(targetEntity: Theme::class, mappedBy: 'tenant')]
     private Collection $themes;
 
     public function __construct()
     {
+        $this->users = new ArrayCollection();
         $this->articles = new ArrayCollection();
         $this->notes = new ArrayCollection();
         $this->blocs = new ArrayCollection();
@@ -130,71 +104,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->id;
     }
 
-    public function getEmail(): ?string
-    {
-        return $this->email;
-    }
-
-    public function setEmail(string $email): static
-    {
-        $this->email = $email;
-
-        return $this;
-    }
-
-    /**
-     * A visual identifier that represents this user.
-     *
-     * @see UserInterface
-     */
-    public function getUserIdentifier(): string
-    {
-        return (string) $this->email;
-    }
-
-    /**
-     * @see UserInterface
-     */
-    public function getRoles(): array
-    {
-        $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
-        $roles[] = 'ROLE_USER';
-
-        return array_unique($roles);
-    }
-
-    /**
-     * @param list<string> $roles
-     */
-    public function setRoles(array $roles): static
-    {
-        $this->roles = $roles;
-
-        return $this;
-    }
-
-    /**
-     * @see PasswordAuthenticatedUserInterface
-     */
-    public function getPassword(): ?string
-    {
-        return $this->password;
-    }
-
-    public function setPassword(string $password): static
-    {
-        $this->password = $password;
-
-        return $this;
-    }
-
-    #[\Deprecated]
-    public function eraseCredentials(): void
-    {
-        // @deprecated, to be removed when upgrading to Symfony 8
-    }
-
     public function getNom(): ?string
     {
         return $this->nom;
@@ -207,26 +116,80 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getPrenom(): ?string
+    public function getStatut(): ?string
     {
-        return $this->prenom;
+        return $this->statut;
     }
 
-    public function setPrenom(string $prenom): static
+    public function setStatut(string $statut): static
     {
-        $this->prenom = $prenom;
+        $this->statut = $statut;
 
         return $this;
     }
 
-    public function getTenant(): ?Tenant
+    public function getCreatedAt(): ?\DateTimeImmutable
     {
-        return $this->tenant;
+        return $this->created_at;
     }
 
-    public function setTenant(?Tenant $tenant): static
+    public function setCreatedAt(\DateTimeImmutable $created_at): static
     {
-        $this->tenant = $tenant;
+        $this->created_at = $created_at;
+
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updated_at;
+    }
+
+    public function setUpdatedAt(?\DateTimeImmutable $updated_at): static
+    {
+        $this->updated_at = $updated_at;
+
+        return $this;
+    }
+
+    public function getPlan(): ?Plan
+    {
+        return $this->plan;
+    }
+
+    public function setPlan(?Plan $plan): static
+    {
+        $this->plan = $plan;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, User>
+     */
+    public function getUsers(): Collection
+    {
+        return $this->users;
+    }
+
+    public function addUser(User $user): static
+    {
+        if (!$this->users->contains($user)) {
+            $this->users->add($user);
+            $user->setTenant($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUser(User $user): static
+    {
+        if ($this->users->removeElement($user)) {
+            // set the owning side to null (unless already changed)
+            if ($user->getTenant() === $this) {
+                $user->setTenant(null);
+            }
+        }
 
         return $this;
     }
@@ -243,7 +206,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if (!$this->articles->contains($article)) {
             $this->articles->add($article);
-            $article->setCreatedBy($this);
+            $article->setTenant($this);
         }
 
         return $this;
@@ -253,8 +216,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if ($this->articles->removeElement($article)) {
             // set the owning side to null (unless already changed)
-            if ($article->getCreatedBy() === $this) {
-                $article->setCreatedBy(null);
+            if ($article->getTenant() === $this) {
+                $article->setTenant(null);
             }
         }
 
@@ -273,7 +236,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if (!$this->notes->contains($note)) {
             $this->notes->add($note);
-            $note->setUser($this);
+            $note->setTenant($this);
         }
 
         return $this;
@@ -283,8 +246,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if ($this->notes->removeElement($note)) {
             // set the owning side to null (unless already changed)
-            if ($note->getUser() === $this) {
-                $note->setUser(null);
+            if ($note->getTenant() === $this) {
+                $note->setTenant(null);
             }
         }
 
@@ -303,7 +266,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if (!$this->blocs->contains($bloc)) {
             $this->blocs->add($bloc);
-            $bloc->setCreatedBy($this);
+            $bloc->setTenant($this);
         }
 
         return $this;
@@ -313,8 +276,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if ($this->blocs->removeElement($bloc)) {
             // set the owning side to null (unless already changed)
-            if ($bloc->getCreatedBy() === $this) {
-                $bloc->setCreatedBy(null);
+            if ($bloc->getTenant() === $this) {
+                $bloc->setTenant(null);
             }
         }
 
@@ -333,7 +296,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if (!$this->media->contains($medium)) {
             $this->media->add($medium);
-            $medium->setUploadedBy($this);
+            $medium->setTenant($this);
         }
 
         return $this;
@@ -343,8 +306,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if ($this->media->removeElement($medium)) {
             // set the owning side to null (unless already changed)
-            if ($medium->getUploadedBy() === $this) {
-                $medium->setUploadedBy(null);
+            if ($medium->getTenant() === $this) {
+                $medium->setTenant(null);
             }
         }
 
@@ -363,7 +326,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if (!$this->colonneDatasets->contains($colonneDataset)) {
             $this->colonneDatasets->add($colonneDataset);
-            $colonneDataset->setCreatedBy($this);
+            $colonneDataset->setTenant($this);
         }
 
         return $this;
@@ -373,8 +336,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if ($this->colonneDatasets->removeElement($colonneDataset)) {
             // set the owning side to null (unless already changed)
-            if ($colonneDataset->getCreatedBy() === $this) {
-                $colonneDataset->setCreatedBy(null);
+            if ($colonneDataset->getTenant() === $this) {
+                $colonneDataset->setTenant(null);
             }
         }
 
@@ -393,7 +356,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if (!$this->datasets->contains($dataset)) {
             $this->datasets->add($dataset);
-            $dataset->setCreatedBy($this);
+            $dataset->setTenant($this);
         }
 
         return $this;
@@ -403,8 +366,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if ($this->datasets->removeElement($dataset)) {
             // set the owning side to null (unless already changed)
-            if ($dataset->getCreatedBy() === $this) {
-                $dataset->setCreatedBy(null);
+            if ($dataset->getTenant() === $this) {
+                $dataset->setTenant(null);
             }
         }
 
@@ -423,7 +386,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if (!$this->visualisations->contains($visualisation)) {
             $this->visualisations->add($visualisation);
-            $visualisation->setCreatedBy($this);
+            $visualisation->setTenant($this);
         }
 
         return $this;
@@ -433,8 +396,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if ($this->visualisations->removeElement($visualisation)) {
             // set the owning side to null (unless already changed)
-            if ($visualisation->getCreatedBy() === $this) {
-                $visualisation->setCreatedBy(null);
+            if ($visualisation->getTenant() === $this) {
+                $visualisation->setTenant(null);
             }
         }
 
@@ -453,7 +416,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if (!$this->themes->contains($theme)) {
             $this->themes->add($theme);
-            $theme->setCreatedBy($this);
+            $theme->setTenant($this);
         }
 
         return $this;
@@ -463,8 +426,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if ($this->themes->removeElement($theme)) {
             // set the owning side to null (unless already changed)
-            if ($theme->getCreatedBy() === $this) {
-                $theme->setCreatedBy(null);
+            if ($theme->getTenant() === $this) {
+                $theme->setTenant(null);
             }
         }
 
