@@ -59,6 +59,12 @@ class Bloc
     #[ORM\OneToMany(targetEntity: Note::class, mappedBy: 'bloc')]
     private Collection $notes;
 
+    #[ORM\ManyToOne(inversedBy: 'blocs')]
+    private ?Tenant $tenant = null;
+
+    #[ORM\ManyToOne(inversedBy: 'blocs')]
+    private ?User $created_by = null;
+
     public function __construct()
     {
         $this->notes = new ArrayCollection();
@@ -191,6 +197,30 @@ class Bloc
                 $note->setBloc(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getTenant(): ?Tenant
+    {
+        return $this->tenant;
+    }
+
+    public function setTenant(?Tenant $tenant): static
+    {
+        $this->tenant = $tenant;
+
+        return $this;
+    }
+
+    public function getCreatedBy(): ?User
+    {
+        return $this->created_by;
+    }
+
+    public function setCreatedBy(?User $created_by): static
+    {
+        $this->created_by = $created_by;
 
         return $this;
     }

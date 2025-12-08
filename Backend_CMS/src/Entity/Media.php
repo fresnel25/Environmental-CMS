@@ -42,6 +42,12 @@ class Media
     #[ORM\Column]
     private ?\DateTimeImmutable $updated_at = null;
 
+    #[ORM\ManyToOne(inversedBy: 'media')]
+    private ?User $uploaded_by = null;
+
+    #[ORM\ManyToOne(inversedBy: 'media')]
+    private ?Tenant $tenant = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -103,6 +109,30 @@ class Media
     public function setUpdatedAt(\DateTimeImmutable $updated_at): static
     {
         $this->updated_at = $updated_at;
+
+        return $this;
+    }
+
+    public function getUploadedBy(): ?User
+    {
+        return $this->uploaded_by;
+    }
+
+    public function setUploadedBy(?User $uploaded_by): static
+    {
+        $this->uploaded_by = $uploaded_by;
+
+        return $this;
+    }
+
+    public function getTenant(): ?Tenant
+    {
+        return $this->tenant;
+    }
+
+    public function setTenant(?Tenant $tenant): static
+    {
+        $this->tenant = $tenant;
 
         return $this;
     }

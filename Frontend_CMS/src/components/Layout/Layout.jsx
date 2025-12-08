@@ -9,7 +9,7 @@ const Layout = () => {
       <Sidenav/>
       <div className="flex-1 bg-neutral-200 text-black">
         <Header/>
-        <div className="p-4">{<Outlet />}</div>
+        <div className="p-4 flex-1 min-h-0 overflow-auto">{<Outlet />}</div>
       </div>
     </div>
   );

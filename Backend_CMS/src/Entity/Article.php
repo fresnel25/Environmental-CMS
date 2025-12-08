@@ -56,6 +56,15 @@ class Article
     #[ORM\OneToMany(targetEntity: Bloc::class, mappedBy: 'article', orphanRemoval: true)]
     private Collection $blocs;
 
+    #[ORM\ManyToOne(inversedBy: 'articles')]
+    private ?Tenant $tenant = null;
+
+    #[ORM\ManyToOne(inversedBy: 'articles')]
+    private ?User $created_by = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $statut = null;
+
     public function __construct()
     {
         $this->blocs = new ArrayCollection();
@@ -176,6 +185,42 @@ class Article
                 $bloc->setArticle(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getTenant(): ?Tenant
+    {
+        return $this->tenant;
+    }
+
+    public function setTenant(?Tenant $tenant): static
+    {
+        $this->tenant = $tenant;
+
+        return $this;
+    }
+
+    public function getCreatedBy(): ?User
+    {
+        return $this->created_by;
+    }
+
+    public function setCreatedBy(?User $created_by): static
+    {
+        $this->created_by = $created_by;
+
+        return $this;
+    }
+
+    public function getStatut(): ?string
+    {
+        return $this->statut;
+    }
+
+    public function setStatut(string $statut): static
+    {
+        $this->statut = $statut;
 
         return $this;
     }

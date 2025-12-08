@@ -38,6 +38,12 @@ class Note
     #[ORM\ManyToOne(inversedBy: 'notes')]
     private ?Bloc $bloc = null;
 
+    #[ORM\ManyToOne(inversedBy: 'notes')]
+    private ?User $user = null;
+
+    #[ORM\ManyToOne(inversedBy: 'notes')]
+    private ?Tenant $tenant = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -87,6 +93,30 @@ class Note
     public function setBloc(?Bloc $bloc): static
     {
         $this->bloc = $bloc;
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
+
+        return $this;
+    }
+
+    public function getTenant(): ?Tenant
+    {
+        return $this->tenant;
+    }
+
+    public function setTenant(?Tenant $tenant): static
+    {
+        $this->tenant = $tenant;
 
         return $this;
     }
