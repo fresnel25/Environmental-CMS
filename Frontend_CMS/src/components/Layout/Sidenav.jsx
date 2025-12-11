@@ -16,31 +16,31 @@ const menuTop = [
     label: "Tableau de bord",
     key: "dashboard",
     icon: <LayoutDashboard size={20} />,
-    to: "/",
+    to: "/dashboard",
   },
   {
     label: "Articles",
     key: "articles",
     icon: <Newspaper size={20} />,
-    to: "/articles",
+    to: "/dashboard/articles",
   },
   {
     label: "Apparences",
     key: "apparence",
     icon: <Paintbrush size={20} />,
-    to: "/apparences",
+    to: "/dashboard/apparences",
   },
   {
     label: "Medias",
     key: "media",
     icon: <Image size={20} />,
-    to: "/medias",
+    to: "/dashboard/medias",
   },
   {
     label: "Utilisateurs",
     key: "utilisateur",
     icon: <Users size={20} />,
-    to: "/utilisateurs",
+    to: "/dashboard/utilisateurs",
   },
 ];
 
@@ -49,29 +49,29 @@ const menuBottom = [
     label: "Paramètre",
     key: "parametre",
     icon: <Settings size={20} />,
-    to: "/parametres",
+    to: "/dashboard/parametres",
   },
   {
     label: "Aide et Support",
     key: "support",
     icon: <MessageCircleQuestionMark size={20} />,
-    to: "/supports",
+    to: "/dashboard/supports",
   },
   {
     label: "Déconnexion",
     key: "deconnexion",
     icon: <LogOut size={20} />,
-    to: "/deconnexion",
+    to: "/dashboard/deconnexion",
   },
 ];
 
 const Sidenav = () => {
   return (
     <div className="flex flex-col w-70 p-3 text-white gap-6">
-      <div className="flex gap-2 justify-center px-1 py-3">
+      <div className="flex gap-2 justify-center px-1 py-3"> 
         <Leaf className="font-bold" />
         <h3 className="text-2xl font-bold text-amber-100">
-          Environ<span className="text-white">_Data</span>
+          Dev<span className="text-white">4Earth</span>
         </h3>
       </div>
       <div className="flex-1 py-8 flex flex-col">

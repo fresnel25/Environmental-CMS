@@ -9,6 +9,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PlanRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 #[ApiResource]
 class Plan
 {
@@ -34,6 +35,18 @@ class Plan
 
     #[ORM\Column]
     private ?\DateTimeImmutable $updated_at = null;
+
+    #[ORM\PrePersist]
+    public function onPrePersist(): void
+    {
+        $this->created_at = new \DateTimeImmutable();
+    }
+
+    #[ORM\PreUpdate]
+    public function onPreUpdate(): void
+    {
+        $this->updated_at = new \DateTimeImmutable();
+    }
 
     /**
      * @var Collection<int, Tenant>

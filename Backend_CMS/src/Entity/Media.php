@@ -13,6 +13,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: MediaRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 #[ApiResource(operations: [
     new GetCollection(security: "is_granted('PUBLIC_ACCESS')"),
     new Get(security: "is_granted('PUBLIC_ACCESS')"),
@@ -47,6 +48,18 @@ class Media
 
     #[ORM\ManyToOne(inversedBy: 'media')]
     private ?Tenant $tenant = null;
+
+    #[ORM\PrePersist]
+    public function onPrePersist(): void
+    {
+        $this->created_at = new \DateTimeImmutable();
+    }
+
+    #[ORM\PreUpdate]
+    public function onPreUpdate(): void
+    {
+        $this->updated_at = new \DateTimeImmutable();
+    }
 
     public function getId(): ?int
     {

@@ -15,6 +15,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: DatasetRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 #[ApiResource(operations: [
     new GetCollection(security: "is_granted('ROLE_DATA_PROVIDER') or is_granted('ROLE_ADMINISTRATEUR')"),
     new Get(security: "is_granted('ROLE_DATA_PROVIDER') or is_granted('ROLE_ADMINISTRATEUR')"),
@@ -50,6 +51,18 @@ class Dataset
 
     #[ORM\Column]
     private ?\DateTimeImmutable $updated_at = null;
+
+    #[ORM\PrePersist]
+    public function onPrePersist(): void
+    {
+        $this->created_at = new \DateTimeImmutable();
+    }
+
+    #[ORM\PreUpdate]
+    public function onPreUpdate(): void
+    {
+        $this->updated_at = new \DateTimeImmutable();
+    }
 
     /**
      * @var Collection<int, ColonneDataset>
