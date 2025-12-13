@@ -59,6 +59,7 @@ security:
 
     # Route pour inscrire un user
     - { path: ^/api/register, roles: PUBLIC_ACCESS }
+    - { path: ^/api/tenants, roles: PUBLIC_ACCESS }
 
     - { path: ^/api/login_check, roles: PUBLIC_ACCESS }
     - { path: ^/api/docs, roles: PUBLIC_ACCESS }

@@ -15,6 +15,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ArticleRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 #[ApiResource(operations: [
     new GetCollection(security: "is_granted('PUBLIC_ACCESS')"),
     new Get(security: "is_granted('PUBLIC_ACCESS')"),
@@ -35,8 +36,8 @@ class Article
     #[ORM\Column(type: Types::TEXT)]
     private ?string $resume = null;
 
-    #[ORM\Column]
-    private ?bool $status = null;
+    #[ORM\Column(type: 'boolean')]
+    private bool $status = false;
 
     #[ORM\Column(length: 255)]
     private ?string $slug = null;
@@ -61,9 +62,6 @@ class Article
 
     #[ORM\ManyToOne(inversedBy: 'articles')]
     private ?User $created_by = null;
-
-    #[ORM\Column(length: 255)]
-    private ?string $statut = null;
 
     public function __construct()
     {
@@ -209,18 +207,6 @@ class Article
     public function setCreatedBy(?User $created_by): static
     {
         $this->created_by = $created_by;
-
-        return $this;
-    }
-
-    public function getStatut(): ?string
-    {
-        return $this->statut;
-    }
-
-    public function setStatut(string $statut): static
-    {
-        $this->statut = $statut;
 
         return $this;
     }

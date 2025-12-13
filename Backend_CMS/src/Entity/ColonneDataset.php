@@ -12,6 +12,7 @@ use App\Repository\ColonneDatasetRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ColonneDatasetRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 #[ApiResource(operations: [
     new GetCollection(security: "is_granted('ROLE_DATA_PROVIDER') or is_granted('ROLE_ADMINISTRATEUR')"),
     new Get(security: "is_granted('ROLE_DATA_PROVIDER') or is_granted('ROLE_ADMINISTRATEUR')"),
@@ -46,6 +47,18 @@ class ColonneDataset
 
     #[ORM\ManyToOne(inversedBy: 'colonneDatasets')]
     private ?User $created_by = null;
+
+    #[ORM\PrePersist]
+    public function onPrePersist(): void
+    {
+        $this->created_at = new \DateTimeImmutable();
+    }
+
+    #[ORM\PreUpdate]
+    public function onPreUpdate(): void
+    {
+        $this->updated_at = new \DateTimeImmutable();
+    }
 
     public function getId(): ?int
     {

@@ -9,6 +9,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: TenantRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 #[ApiResource]
 class Tenant
 {
@@ -20,9 +21,6 @@ class Tenant
     #[ORM\Column(length: 255)]
     private ?string $nom = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $statut = null;
-
     #[ORM\Column]
     private ?\DateTimeImmutable $created_at = null;
 
@@ -31,6 +29,20 @@ class Tenant
 
     #[ORM\ManyToOne(inversedBy: 'tenants')]
     private ?Plan $plan = null;
+
+    #[ORM\PrePersist]
+    public function onPrePersist(): void
+    {
+        $now = new \DateTimeImmutable();
+        $this->created_at = $now;
+        $this->updated_at = $now;
+    }
+
+    #[ORM\PreUpdate]
+    public function onPreUpdate(): void
+    {
+        $this->updated_at = new \DateTimeImmutable();
+    }
 
     /**
      * @var Collection<int, User>
@@ -86,6 +98,15 @@ class Tenant
     #[ORM\OneToMany(targetEntity: Theme::class, mappedBy: 'tenant')]
     private Collection $themes;
 
+    #[ORM\Column]
+    private ?bool $status = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $slug = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $logo = null;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
@@ -112,18 +133,6 @@ class Tenant
     public function setNom(string $nom): static
     {
         $this->nom = $nom;
-
-        return $this;
-    }
-
-    public function getStatut(): ?string
-    {
-        return $this->statut;
-    }
-
-    public function setStatut(string $statut): static
-    {
-        $this->statut = $statut;
 
         return $this;
     }
@@ -430,6 +439,42 @@ class Tenant
                 $theme->setTenant(null);
             }
         }
+
+        return $this;
+    }
+
+    public function isStatus(): ?bool
+    {
+        return $this->status;
+    }
+
+    public function setStatus(bool $status): static
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    public function getSlug(): ?string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(string $slug): static
+    {
+        $this->slug = $slug;
+
+        return $this;
+    }
+
+    public function getLogo(): ?string
+    {
+        return $this->logo;
+    }
+
+    public function setLogo(?string $logo): static
+    {
+        $this->logo = $logo;
 
         return $this;
     }

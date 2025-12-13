@@ -2,7 +2,7 @@ const Input = ({
   icon,
   label,
   placeholder,
-  type = "text",
+  type,
   value,
   onChange,
 }) => {
