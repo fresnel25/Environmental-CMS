@@ -11,38 +11,14 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: TenantRepository::class)]
 #[ORM\HasLifecycleCallbacks]
 #[ApiResource]
-class Tenant
+class Tenant extends AbstractBaseEntity
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
 
     #[ORM\Column(length: 255)]
     private ?string $nom = null;
 
-    #[ORM\Column]
-    private ?\DateTimeImmutable $created_at = null;
-
-    #[ORM\Column(nullable: true)]
-    private ?\DateTimeImmutable $updated_at = null;
-
     #[ORM\ManyToOne(inversedBy: 'tenants')]
     private ?Plan $plan = null;
-
-    #[ORM\PrePersist]
-    public function onPrePersist(): void
-    {
-        $now = new \DateTimeImmutable();
-        $this->created_at = $now;
-        $this->updated_at = $now;
-    }
-
-    #[ORM\PreUpdate]
-    public function onPreUpdate(): void
-    {
-        $this->updated_at = new \DateTimeImmutable();
-    }
 
     /**
      * @var Collection<int, User>
@@ -137,30 +113,6 @@ class Tenant
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeImmutable
-    {
-        return $this->created_at;
-    }
-
-    public function setCreatedAt(\DateTimeImmutable $created_at): static
-    {
-        $this->created_at = $created_at;
-
-        return $this;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeImmutable
-    {
-        return $this->updated_at;
-    }
-
-    public function setUpdatedAt(?\DateTimeImmutable $updated_at): static
-    {
-        $this->updated_at = $updated_at;
-
-        return $this;
-    }
-
     public function getPlan(): ?Plan
     {
         return $this->plan;
@@ -181,28 +133,6 @@ class Tenant
         return $this->users;
     }
 
-    public function addUser(User $user): static
-    {
-        if (!$this->users->contains($user)) {
-            $this->users->add($user);
-            $user->setTenant($this);
-        }
-
-        return $this;
-    }
-
-    public function removeUser(User $user): static
-    {
-        if ($this->users->removeElement($user)) {
-            // set the owning side to null (unless already changed)
-            if ($user->getTenant() === $this) {
-                $user->setTenant(null);
-            }
-        }
-
-        return $this;
-    }
-
     /**
      * @return Collection<int, Article>
      */
@@ -211,27 +141,6 @@ class Tenant
         return $this->articles;
     }
 
-    public function addArticle(Article $article): static
-    {
-        if (!$this->articles->contains($article)) {
-            $this->articles->add($article);
-            $article->setTenant($this);
-        }
-
-        return $this;
-    }
-
-    public function removeArticle(Article $article): static
-    {
-        if ($this->articles->removeElement($article)) {
-            // set the owning side to null (unless already changed)
-            if ($article->getTenant() === $this) {
-                $article->setTenant(null);
-            }
-        }
-
-        return $this;
-    }
 
     /**
      * @return Collection<int, Note>
@@ -241,27 +150,6 @@ class Tenant
         return $this->notes;
     }
 
-    public function addNote(Note $note): static
-    {
-        if (!$this->notes->contains($note)) {
-            $this->notes->add($note);
-            $note->setTenant($this);
-        }
-
-        return $this;
-    }
-
-    public function removeNote(Note $note): static
-    {
-        if ($this->notes->removeElement($note)) {
-            // set the owning side to null (unless already changed)
-            if ($note->getTenant() === $this) {
-                $note->setTenant(null);
-            }
-        }
-
-        return $this;
-    }
 
     /**
      * @return Collection<int, Bloc>
@@ -271,27 +159,6 @@ class Tenant
         return $this->blocs;
     }
 
-    public function addBloc(Bloc $bloc): static
-    {
-        if (!$this->blocs->contains($bloc)) {
-            $this->blocs->add($bloc);
-            $bloc->setTenant($this);
-        }
-
-        return $this;
-    }
-
-    public function removeBloc(Bloc $bloc): static
-    {
-        if ($this->blocs->removeElement($bloc)) {
-            // set the owning side to null (unless already changed)
-            if ($bloc->getTenant() === $this) {
-                $bloc->setTenant(null);
-            }
-        }
-
-        return $this;
-    }
 
     /**
      * @return Collection<int, Media>
@@ -301,27 +168,6 @@ class Tenant
         return $this->media;
     }
 
-    public function addMedium(Media $medium): static
-    {
-        if (!$this->media->contains($medium)) {
-            $this->media->add($medium);
-            $medium->setTenant($this);
-        }
-
-        return $this;
-    }
-
-    public function removeMedium(Media $medium): static
-    {
-        if ($this->media->removeElement($medium)) {
-            // set the owning side to null (unless already changed)
-            if ($medium->getTenant() === $this) {
-                $medium->setTenant(null);
-            }
-        }
-
-        return $this;
-    }
 
     /**
      * @return Collection<int, ColonneDataset>
@@ -331,27 +177,6 @@ class Tenant
         return $this->colonneDatasets;
     }
 
-    public function addColonneDataset(ColonneDataset $colonneDataset): static
-    {
-        if (!$this->colonneDatasets->contains($colonneDataset)) {
-            $this->colonneDatasets->add($colonneDataset);
-            $colonneDataset->setTenant($this);
-        }
-
-        return $this;
-    }
-
-    public function removeColonneDataset(ColonneDataset $colonneDataset): static
-    {
-        if ($this->colonneDatasets->removeElement($colonneDataset)) {
-            // set the owning side to null (unless already changed)
-            if ($colonneDataset->getTenant() === $this) {
-                $colonneDataset->setTenant(null);
-            }
-        }
-
-        return $this;
-    }
 
     /**
      * @return Collection<int, Dataset>
@@ -359,28 +184,6 @@ class Tenant
     public function getDatasets(): Collection
     {
         return $this->datasets;
-    }
-
-    public function addDataset(Dataset $dataset): static
-    {
-        if (!$this->datasets->contains($dataset)) {
-            $this->datasets->add($dataset);
-            $dataset->setTenant($this);
-        }
-
-        return $this;
-    }
-
-    public function removeDataset(Dataset $dataset): static
-    {
-        if ($this->datasets->removeElement($dataset)) {
-            // set the owning side to null (unless already changed)
-            if ($dataset->getTenant() === $this) {
-                $dataset->setTenant(null);
-            }
-        }
-
-        return $this;
     }
 
     /**
@@ -391,56 +194,12 @@ class Tenant
         return $this->visualisations;
     }
 
-    public function addVisualisation(Visualisation $visualisation): static
-    {
-        if (!$this->visualisations->contains($visualisation)) {
-            $this->visualisations->add($visualisation);
-            $visualisation->setTenant($this);
-        }
-
-        return $this;
-    }
-
-    public function removeVisualisation(Visualisation $visualisation): static
-    {
-        if ($this->visualisations->removeElement($visualisation)) {
-            // set the owning side to null (unless already changed)
-            if ($visualisation->getTenant() === $this) {
-                $visualisation->setTenant(null);
-            }
-        }
-
-        return $this;
-    }
-
     /**
      * @return Collection<int, Theme>
      */
     public function getThemes(): Collection
     {
         return $this->themes;
-    }
-
-    public function addTheme(Theme $theme): static
-    {
-        if (!$this->themes->contains($theme)) {
-            $this->themes->add($theme);
-            $theme->setTenant($this);
-        }
-
-        return $this;
-    }
-
-    public function removeTheme(Theme $theme): static
-    {
-        if ($this->themes->removeElement($theme)) {
-            // set the owning side to null (unless already changed)
-            if ($theme->getTenant() === $this) {
-                $theme->setTenant(null);
-            }
-        }
-
-        return $this;
     }
 
     public function isStatus(): ?bool

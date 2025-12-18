@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiProperty;
+use App\Entity\TenantAwareInterface;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
@@ -13,22 +15,37 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: ArticleRepository::class)]
 #[ORM\HasLifecycleCallbacks]
 #[ApiResource(operations: [
+    // Collection publique
     new GetCollection(security: "is_granted('PUBLIC_ACCESS')"),
-    new Get(security: "is_granted('PUBLIC_ACCESS')"),
-    new Post(securityPostDenormalize: "is_granted('ROLE_AUTEUR') or is_granted('ROLE_EDITEUR') or is_granted('ROLE_ADMINISTRATEUR')"),
-    new Patch(security: "is_granted('ROLE_EDITEUR') or (is_granted('ROLE_AUTEUR') and object.getAuthor() == user) or is_granted('ROLE_ADMINISTRATEUR')"),
-    new Delete(security: "is_granted('ROLE_ADMINISTRATEUR')")
+
+    // Item : même tenant
+    new Get(security: "is_granted('TENANT_VIEW', object)"),
+
+    // Création : rôles auteur/éditeur/admin
+    new Post(securityPostDenormalize: "
+        is_granted('ROLE_AUTEUR') 
+        or is_granted('ROLE_EDITEUR') 
+        or is_granted('ROLE_ADMINISTRATEUR')
+    "),
+
+    // Modification : tenant + rôle
+    new Patch(security: "
+        is_granted('TENANT_EDIT', object) 
+        and (is_granted('ROLE_AUTEUR') and object.getCreatedBy() == user
+             or is_granted('ROLE_EDITEUR') 
+             or is_granted('ROLE_ADMINISTRATEUR'))
+    "),
+
+    // Suppression : tenant + admin
+    new Delete(security: "is_granted('TENANT_DELETE', object) and is_granted('ROLE_ADMINISTRATEUR')")
 ])]
-class Article
+class Article extends AbstractTenantEntity implements TenantAwareInterface
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
 
     #[ORM\Column(length: 255)]
     private ?string $titre = null;
@@ -45,23 +62,12 @@ class Article
     #[ORM\Column(length: 255)]
     private ?string $categorie = null;
 
-    #[ORM\Column]
-    private ?\DateTimeImmutable $created_at = null;
-
-    #[ORM\Column]
-    private ?\DateTimeImmutable $updated_at = null;
-
     /**
      * @var Collection<int, Bloc>
      */
     #[ORM\OneToMany(targetEntity: Bloc::class, mappedBy: 'article', orphanRemoval: true)]
     private Collection $blocs;
 
-    #[ORM\ManyToOne(inversedBy: 'articles')]
-    private ?Tenant $tenant = null;
-
-    #[ORM\ManyToOne(inversedBy: 'articles')]
-    private ?User $created_by = null;
 
     public function __construct()
     {
@@ -133,30 +139,6 @@ class Article
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeImmutable
-    {
-        return $this->created_at;
-    }
-
-    public function setCreatedAt(\DateTimeImmutable $created_at): static
-    {
-        $this->created_at = $created_at;
-
-        return $this;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeImmutable
-    {
-        return $this->updated_at;
-    }
-
-    public function setUpdatedAt(\DateTimeImmutable $updated_at): static
-    {
-        $this->updated_at = $updated_at;
-
-        return $this;
-    }
-
     /**
      * @return Collection<int, Bloc>
      */
@@ -183,30 +165,6 @@ class Article
                 $bloc->setArticle(null);
             }
         }
-
-        return $this;
-    }
-
-    public function getTenant(): ?Tenant
-    {
-        return $this->tenant;
-    }
-
-    public function setTenant(?Tenant $tenant): static
-    {
-        $this->tenant = $tenant;
-
-        return $this;
-    }
-
-    public function getCreatedBy(): ?User
-    {
-        return $this->created_by;
-    }
-
-    public function setCreatedBy(?User $created_by): static
-    {
-        $this->created_by = $created_by;
 
         return $this;
     }

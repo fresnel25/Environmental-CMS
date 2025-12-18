@@ -17,16 +17,17 @@ use Doctrine\ORM\Mapping as ORM;
 #[ApiResource(operations: [
     new GetCollection(security: "is_granted('PUBLIC_ACCESS')"),
     new Get(security: "is_granted('PUBLIC_ACCESS')"),
-    new Post(securityPostDenormalize: "is_granted('ROLE_AUTEUR') or is_granted('ROLE_EDITEUR') or is_granted('ROLE_DATA_PROVIDER') or is_granted('ROLE_ADMINISTRATEUR')"),
+    new Post(securityPostDenormalize: "
+        is_granted('ROLE_AUTEUR') 
+        or is_granted('ROLE_EDITEUR') 
+        or is_granted('ROLE_DATA_PROVIDER') 
+        or is_granted('ROLE_ADMINISTRATEUR')
+    "),
     new Patch(security: "is_granted('ROLE_DESIGNER') or is_granted('ROLE_ADMINISTRATEUR')"),
     new Delete(security: "is_granted('ROLE_ADMINISTRATEUR')")
 ])]
-class Visualisation
+class Visualisation extends AbstractTenantEntity implements TenantAwareInterface
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
 
     #[ORM\Column(length: 255)]
     private ?string $type_visualisation = null;
@@ -43,35 +44,11 @@ class Visualisation
     #[ORM\Column(type: Types::TEXT)]
     private ?string $note = null;
 
-    #[ORM\Column]
-    private ?\DateTimeImmutable $created_at = null;
-
-    #[ORM\Column]
-    private ?\DateTimeImmutable $updated_at = null;
-
     #[ORM\OneToOne(mappedBy: 'visualisation', cascade: ['persist', 'remove'])]
     private ?Bloc $bloc = null;
 
     #[ORM\ManyToOne(inversedBy: 'visualisations')]
     private ?Dataset $dataset = null;
-
-    #[ORM\ManyToOne(inversedBy: 'visualisations')]
-    private ?Tenant $tenant = null;
-
-    #[ORM\ManyToOne(inversedBy: 'visualisations')]
-    private ?User $created_by = null;
-
-    #[ORM\PrePersist]
-    public function onPrePersist(): void
-    {
-        $this->created_at = new \DateTimeImmutable();
-    }
-
-    #[ORM\PreUpdate]
-    public function onPreUpdate(): void
-    {
-        $this->updated_at = new \DateTimeImmutable();
-    }
 
     public function getId(): ?int
     {
@@ -138,30 +115,6 @@ class Visualisation
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeImmutable
-    {
-        return $this->created_at;
-    }
-
-    public function setCreatedAt(\DateTimeImmutable $created_at): static
-    {
-        $this->created_at = $created_at;
-
-        return $this;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeImmutable
-    {
-        return $this->updated_at;
-    }
-
-    public function setUpdatedAt(\DateTimeImmutable $updated_at): static
-    {
-        $this->updated_at = $updated_at;
-
-        return $this;
-    }
-
     public function getBloc(): ?Bloc
     {
         return $this->bloc;
@@ -196,27 +149,5 @@ class Visualisation
         return $this;
     }
 
-    public function getTenant(): ?Tenant
-    {
-        return $this->tenant;
-    }
-
-    public function setTenant(?Tenant $tenant): static
-    {
-        $this->tenant = $tenant;
-
-        return $this;
-    }
-
-    public function getCreatedBy(): ?User
-    {
-        return $this->created_by;
-    }
-
-    public function setCreatedBy(?User $created_by): static
-    {
-        $this->created_by = $created_by;
-
-        return $this;
-    }
+    
 }

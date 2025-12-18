@@ -17,45 +17,20 @@ use Doctrine\ORM\Mapping as ORM;
     new GetCollection(security: "is_granted('PUBLIC_ACCESS')"),
     new Get(security: "is_granted('PUBLIC_ACCESS')"),
     new Post(securityPostDenormalize: "is_granted('ROLE_ABONNE') or is_granted('ROLE_ADMINISTRATEUR')"),
-    new Patch(security: "is_granted('ROLE_ABONNE') and object.getUser() == user or is_granted('ROLE_ADMINISTRATEUR')"),
+    new Patch(security: "
+        is_granted('ROLE_ABONNE') and object.getCreatedBy() == user 
+        or is_granted('ROLE_ADMINISTRATEUR')
+    "),
     new Delete(security: "is_granted('ROLE_ADMINISTRATEUR')")
 ])]
-class Note
+class Note extends AbstractTenantEntity implements TenantAwareInterface
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
 
     #[ORM\Column(nullable: true)]
     private ?int $valeur = null;
 
-    #[ORM\Column]
-    private ?\DateTimeImmutable $created_at = null;
-
-    #[ORM\Column]
-    private ?\DateTimeImmutable $updated_at = null;
-
     #[ORM\ManyToOne(inversedBy: 'notes')]
     private ?Bloc $bloc = null;
-
-    #[ORM\ManyToOne(inversedBy: 'notes')]
-    private ?User $user = null;
-
-    #[ORM\ManyToOne(inversedBy: 'notes')]
-    private ?Tenant $tenant = null;
-
-    #[ORM\PrePersist]
-    public function onPrePersist(): void
-    {
-        $this->created_at = new \DateTimeImmutable();
-    }
-
-    #[ORM\PreUpdate]
-    public function onPreUpdate(): void
-    {
-        $this->updated_at = new \DateTimeImmutable();
-    }
 
     public function getId(): ?int
     {
@@ -74,30 +49,6 @@ class Note
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeImmutable
-    {
-        return $this->created_at;
-    }
-
-    public function setCreatedAt(\DateTimeImmutable $created_at): static
-    {
-        $this->created_at = $created_at;
-
-        return $this;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeImmutable
-    {
-        return $this->updated_at;
-    }
-
-    public function setUpdatedAt(\DateTimeImmutable $updated_at): static
-    {
-        $this->updated_at = $updated_at;
-
-        return $this;
-    }
-
     public function getBloc(): ?Bloc
     {
         return $this->bloc;
@@ -106,30 +57,6 @@ class Note
     public function setBloc(?Bloc $bloc): static
     {
         $this->bloc = $bloc;
-
-        return $this;
-    }
-
-    public function getUser(): ?User
-    {
-        return $this->user;
-    }
-
-    public function setUser(?User $user): static
-    {
-        $this->user = $user;
-
-        return $this;
-    }
-
-    public function getTenant(): ?Tenant
-    {
-        return $this->tenant;
-    }
-
-    public function setTenant(?Tenant $tenant): static
-    {
-        $this->tenant = $tenant;
 
         return $this;
     }
