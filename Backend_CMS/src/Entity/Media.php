@@ -17,16 +17,16 @@ use Doctrine\ORM\Mapping as ORM;
 #[ApiResource(operations: [
     new GetCollection(security: "is_granted('PUBLIC_ACCESS')"),
     new Get(security: "is_granted('PUBLIC_ACCESS')"),
-    new Post(securityPostDenormalize: "is_granted('ROLE_EDITEUR') or is_granted('ROLE_DESIGNER') or is_granted('ROLE_ADMINISTRATEUR')"),
+    new Post(securityPostDenormalize: "
+        is_granted('ROLE_EDITEUR') 
+        or is_granted('ROLE_DESIGNER') 
+        or is_granted('ROLE_ADMINISTRATEUR')
+    "),
     new Patch(security: "is_granted('ROLE_DESIGNER') or is_granted('ROLE_ADMINISTRATEUR')"),
     new Delete(security: "is_granted('ROLE_ADMINISTRATEUR')")
 ])]
-class Media
+class Media extends AbstractTenantEntity implements TenantAwareInterface
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
 
     #[ORM\Column(type: Types::TEXT)]
     private ?string $lien = null;
@@ -36,30 +36,6 @@ class Media
 
     #[ORM\Column(length: 255)]
     private ?string $titre = null;
-
-    #[ORM\Column]
-    private ?\DateTimeImmutable $created_at = null;
-
-    #[ORM\Column]
-    private ?\DateTimeImmutable $updated_at = null;
-
-    #[ORM\ManyToOne(inversedBy: 'media')]
-    private ?User $uploaded_by = null;
-
-    #[ORM\ManyToOne(inversedBy: 'media')]
-    private ?Tenant $tenant = null;
-
-    #[ORM\PrePersist]
-    public function onPrePersist(): void
-    {
-        $this->created_at = new \DateTimeImmutable();
-    }
-
-    #[ORM\PreUpdate]
-    public function onPreUpdate(): void
-    {
-        $this->updated_at = new \DateTimeImmutable();
-    }
 
     public function getId(): ?int
     {
@@ -98,54 +74,6 @@ class Media
     public function setTitre(string $titre): static
     {
         $this->titre = $titre;
-
-        return $this;
-    }
-
-    public function getCreatedAt(): ?\DateTimeImmutable
-    {
-        return $this->created_at;
-    }
-
-    public function setCreatedAt(\DateTimeImmutable $created_at): static
-    {
-        $this->created_at = $created_at;
-
-        return $this;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeImmutable
-    {
-        return $this->updated_at;
-    }
-
-    public function setUpdatedAt(\DateTimeImmutable $updated_at): static
-    {
-        $this->updated_at = $updated_at;
-
-        return $this;
-    }
-
-    public function getUploadedBy(): ?User
-    {
-        return $this->uploaded_by;
-    }
-
-    public function setUploadedBy(?User $uploaded_by): static
-    {
-        $this->uploaded_by = $uploaded_by;
-
-        return $this;
-    }
-
-    public function getTenant(): ?Tenant
-    {
-        return $this->tenant;
-    }
-
-    public function setTenant(?Tenant $tenant): static
-    {
-        $this->tenant = $tenant;
 
         return $this;
     }

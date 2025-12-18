@@ -1,5 +1,6 @@
 <?php
 
+
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
@@ -17,18 +18,22 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\HasLifecycleCallbacks]
 #[ApiResource(operations: [
     new GetCollection(security: "is_granted('PUBLIC_ACCESS')"),
-    new Get(security: "is_granted('PUBLIC_ACCESS')"),
-    new Post(securityPostDenormalize: "is_granted('ROLE_AUTEUR') or is_granted('ROLE_EDITEUR') or is_granted('ROLE_ADMINISTRATEUR')"),
-    new Patch(security: "is_granted('ROLE_EDITEUR') or (is_granted('ROLE_AUTEUR') and object.getArticle().getAuthor() == user) or is_granted('ROLE_ADMINISTRATEUR')"),
-    new Delete(security: "is_granted('ROLE_ADMINISTRATEUR')")
+    new Get(security: "is_granted('TENANT_VIEW', object)"),
+    new Post(securityPostDenormalize: "
+        is_granted('ROLE_AUTEUR') 
+        or is_granted('ROLE_EDITEUR') 
+        or is_granted('ROLE_ADMINISTRATEUR')
+    "),
+    new Patch(security: "
+        is_granted('TENANT_EDIT', object) 
+        and (is_granted('ROLE_AUTEUR') and object.getCreatedBy() == user
+             or is_granted('ROLE_EDITEUR') 
+             or is_granted('ROLE_ADMINISTRATEUR'))
+    "),
+    new Delete(security: "is_granted('TENANT_DELETE', object) and is_granted('ROLE_ADMINISTRATEUR')")
 ])]
-class Bloc
+class Bloc extends AbstractTenantEntity implements TenantAwareInterface
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
-
     #[ORM\Column(length: 255)]
     private ?string $type_bloc = null;
 
@@ -41,12 +46,6 @@ class Bloc
     #[ORM\Column]
     private array $contenu_json = [];
 
-    #[ORM\Column]
-    private ?\DateTimeImmutable $created_at = null;
-
-    #[ORM\Column]
-    private ?\DateTimeImmutable $updated_at = null;
-
     #[ORM\ManyToOne(inversedBy: 'blocs')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Article $article = null;
@@ -54,17 +53,6 @@ class Bloc
     #[ORM\OneToOne(inversedBy: 'bloc', cascade: ['persist', 'remove'])]
     private ?Visualisation $visualisation = null;
 
-    #[ORM\PrePersist]
-    public function onPrePersist(): void
-    {
-        $this->created_at = new \DateTimeImmutable();
-    }
-
-    #[ORM\PreUpdate]
-    public function onPreUpdate(): void
-    {
-        $this->updated_at = new \DateTimeImmutable();
-    }
 
     /**
      * @var Collection<int, Note>
@@ -72,11 +60,6 @@ class Bloc
     #[ORM\OneToMany(targetEntity: Note::class, mappedBy: 'bloc')]
     private Collection $notes;
 
-    #[ORM\ManyToOne(inversedBy: 'blocs')]
-    private ?Tenant $tenant = null;
-
-    #[ORM\ManyToOne(inversedBy: 'blocs')]
-    private ?User $created_by = null;
 
     public function __construct()
     {
@@ -136,30 +119,6 @@ class Bloc
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeImmutable
-    {
-        return $this->created_at;
-    }
-
-    public function setCreatedAt(\DateTimeImmutable $created_at): static
-    {
-        $this->created_at = $created_at;
-
-        return $this;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeImmutable
-    {
-        return $this->updated_at;
-    }
-
-    public function setUpdatedAt(\DateTimeImmutable $updated_at): static
-    {
-        $this->updated_at = $updated_at;
-
-        return $this;
-    }
-
     public function getArticle(): ?Article
     {
         return $this->article;
@@ -210,30 +169,6 @@ class Bloc
                 $note->setBloc(null);
             }
         }
-
-        return $this;
-    }
-
-    public function getTenant(): ?Tenant
-    {
-        return $this->tenant;
-    }
-
-    public function setTenant(?Tenant $tenant): static
-    {
-        $this->tenant = $tenant;
-
-        return $this;
-    }
-
-    public function getCreatedBy(): ?User
-    {
-        return $this->created_by;
-    }
-
-    public function setCreatedBy(?User $created_by): static
-    {
-        $this->created_by = $created_by;
 
         return $this;
     }

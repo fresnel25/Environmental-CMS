@@ -17,10 +17,12 @@ security:
     login:
       pattern: ^/api/login
       stateless: true
+     
       json_login:
         check_path: /api/login_check
         success_handler: lexik_jwt_authentication.handler.authentication_success
         failure_handler: lexik_jwt_authentication.handler.authentication_failure
+        provider: app_user_provider
 
     api:
       pattern: ^/api
@@ -60,6 +62,7 @@ security:
     # Route pour inscrire un user
     - { path: ^/api/register, roles: PUBLIC_ACCESS }
     - { path: ^/api/tenants, roles: PUBLIC_ACCESS }
+    - { path: ^/api/articles, roles: PUBLIC_ACCESS }
 
     - { path: ^/api/login_check, roles: PUBLIC_ACCESS }
     - { path: ^/api/docs, roles: PUBLIC_ACCESS }

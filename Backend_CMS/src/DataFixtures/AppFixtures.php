@@ -43,27 +43,23 @@ class AppFixtures extends Fixture
             $plan->setPrix($this->faker->numberBetween(10, 100));
             $plan->setLimite(['max_users' => 20]);
             $plan->setDescription("Offre $name");
-            $plan->setCreatedAt(new \DateTimeImmutable());
-            $plan->setUpdatedAt(new \DateTimeImmutable());
 
             $manager->persist($plan);
-            $plans[] = $plan;
+            $plans[] = $plan; // on garde les objets
         }
 
         // --------------------------------------------------
         // 2) TENANTS
         // --------------------------------------------------
+      
         $tenants = [];
         for ($i = 1; $i <= 4; $i++) {
             $tenant = new Tenant();
             $tenant->setNom("Tenant $i");
             $tenant->setSlug("tenant-$i");
             $tenant->setStatus(true);
+            // Assigner un Plan existant
             $tenant->setPlan($plans[array_rand($plans)]);
-            $tenant->setCreatedAt(new \DateTimeImmutable());
-            $tenant->setUpdatedAt(new \DateTimeImmutable());
-            $tenant->setLogo(null);
-
             $manager->persist($tenant);
             $tenants[] = $tenant;
         }
@@ -83,8 +79,6 @@ class AppFixtures extends Fixture
             $admin->setRoles(["ROLE_ADMINISTRATEUR"]);
             $admin->setStatut(true);
             $admin->setTelephone("60000000$i");
-            $admin->setCreatedAt(new \DateTimeImmutable());
-            $admin->setUpdatedAt(new \DateTimeImmutable());
             $admin->setTenant($tenants[$i - 1]);
             $admin->setPassword($this->hasher->hashPassword($admin, "1234"));
 
@@ -99,8 +93,6 @@ class AppFixtures extends Fixture
             $user->setRoles(["ROLE_USER"]);
             $user->setStatut(true);
             $user->setTelephone("61000000$i");
-            $user->setCreatedAt(new \DateTimeImmutable());
-            $user->setUpdatedAt(new \DateTimeImmutable());
             $user->setTenant($tenants[$i - 1]);
             $user->setPassword($this->hasher->hashPassword($user, "1234"));
 
@@ -122,8 +114,6 @@ class AppFixtures extends Fixture
                 $dataset->setDelimiter(";");
                 $dataset->setTenant($tenant);
                 $dataset->setCreatedBy($admins[array_rand($admins)]);
-                $dataset->setCreatedAt(new \DateTimeImmutable());
-                $dataset->setUpdatedAt(new \DateTimeImmutable());
 
                 $manager->persist($dataset);
                 $datasets[] = $dataset;
@@ -143,8 +133,6 @@ class AppFixtures extends Fixture
             $colQuantity->setDataset($dataset);
             $colQuantity->setTenant($dataset->getTenant());
             $colQuantity->setCreatedBy($admin);
-            $colQuantity->setCreatedAt(new \DateTimeImmutable());
-            $colQuantity->setUpdatedAt(new \DateTimeImmutable());
             $manager->persist($colQuantity);
 
             // Colonne "product.partNumber" → catégoriel / string
@@ -154,8 +142,6 @@ class AppFixtures extends Fixture
             $colPartNumber->setDataset($dataset);
             $colPartNumber->setTenant($dataset->getTenant());
             $colPartNumber->setCreatedBy($admin);
-            $colPartNumber->setCreatedAt(new \DateTimeImmutable());
-            $colPartNumber->setUpdatedAt(new \DateTimeImmutable());
             $manager->persist($colPartNumber);
         }
 
@@ -173,8 +159,6 @@ class AppFixtures extends Fixture
             $vis->setDataset($dataset);
             $vis->setTenant($dataset->getTenant());
             $vis->setCreatedBy($admins[array_rand($admins)]);
-            $vis->setCreatedAt(new \DateTimeImmutable());
-            $vis->setUpdatedAt(new \DateTimeImmutable());
 
             $manager->persist($vis);
             $visuals[] = $vis;
@@ -190,9 +174,7 @@ class AppFixtures extends Fixture
                 $media->setTypeImg("image");
                 $media->setTitre("Image " . $this->faker->word());
                 $media->setTenant($tenant);
-                $media->setUploadedBy($admins[array_rand($admins)]);
-                $media->setCreatedAt(new \DateTimeImmutable());
-                $media->setUpdatedAt(new \DateTimeImmutable());
+                $media->setCreatedBy($admins[array_rand($admins)]);
 
                 $manager->persist($media);
             }
@@ -212,8 +194,6 @@ class AppFixtures extends Fixture
             $article->setCategorie("dashboard");
             $article->setTenant($tenants[array_rand($tenants)]);
             $article->setCreatedBy($admins[array_rand($admins)]);
-            $article->setCreatedAt(new \DateTimeImmutable());
-            $article->setUpdatedAt(new \DateTimeImmutable());
 
             $manager->persist($article);
             $articles[] = $article;
@@ -229,8 +209,6 @@ class AppFixtures extends Fixture
                 $bloc->setPosition($i);
                 $bloc->setTenant($article->getTenant());
                 $bloc->setCreatedBy($admins[array_rand($admins)]);
-                $bloc->setCreatedAt(new \DateTimeImmutable());
-                $bloc->setUpdatedAt(new \DateTimeImmutable());
 
                 // Contenu JSON selon type
                 switch ($type) {
@@ -275,11 +253,8 @@ class AppFixtures extends Fixture
                     if (!$blocs->isEmpty()) {
                         $note = new Note();
                         $note->setValeur(rand(1, 5));
-                        $note->setUser($user);
+                        $note->setCreatedBy($user);
                         $note->setTenant($user->getTenant());
-                        $note->setCreatedAt(new \DateTimeImmutable());
-                        $note->setUpdatedAt(new \DateTimeImmutable());
-
                         // assigner un bloc aléatoire existant
                         $note->setBloc($blocs->first());
 
@@ -300,8 +275,6 @@ class AppFixtures extends Fixture
             $theme->setActive(true);
             $theme->setTenant($tenant);
             $theme->setCreatedBy($admins[array_rand($admins)]);
-            $theme->setCreatedAt(new \DateTimeImmutable());
-            $theme->setUpdatedAt(new \DateTimeImmutable());
 
             $manager->persist($theme);
         }
