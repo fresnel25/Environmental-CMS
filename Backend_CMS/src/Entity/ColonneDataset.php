@@ -9,7 +9,9 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use App\Repository\ColonneDatasetRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: ColonneDatasetRepository::class)]
 #[ORM\HasLifecycleCallbacks]
@@ -26,9 +28,12 @@ use Doctrine\ORM\Mapping as ORM;
 class ColonneDataset extends AbstractTenantEntity implements TenantAwareInterface
 {
 
-    #[ORM\Column(length: 255)]
+    #[Groups(['dataset:read'])]
+    #[ORM\Column(type: Types::TEXT)]
     private ?string $nom_colonne = null;
 
+
+    #[Groups(['dataset:read'])]
     #[ORM\Column(length: 255)]
     private ?string $type_colonne = null;
 

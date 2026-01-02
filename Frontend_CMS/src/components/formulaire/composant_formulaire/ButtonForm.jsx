@@ -1,7 +1,7 @@
 const ButtonForm = ({title}) => {
   return (
     <div>
-      <button className="btn btn-soft btn-success">{title}</button>
+      <button type="submit" className="btn btn-soft btn-success">{title}</button>
     </div>
   );
 };

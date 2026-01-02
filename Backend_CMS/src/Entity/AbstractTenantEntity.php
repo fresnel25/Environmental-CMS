@@ -6,7 +6,7 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\MappedSuperclass]
-abstract class AbstractTenantEntity extends AbstractBaseEntity
+abstract class AbstractTenantEntity extends AbstractBaseEntity implements TenantAwareInterface
 {
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]

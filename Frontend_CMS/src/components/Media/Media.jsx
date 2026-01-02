@@ -1,5 +1,6 @@
 import React from "react";
 import Page_Title from "../Page-Title/Page_Title";
+import MediaLibrary from "./MediaLibrary";
 
 const Media = () => {
   return (
@@ -11,7 +12,7 @@ const Media = () => {
         <div className="flex justify-end mt-5">
         </div>
         <div>
-          
+          <MediaLibrary/>
         </div>
       </div>
     </div>

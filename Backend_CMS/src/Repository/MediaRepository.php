@@ -40,4 +40,13 @@ class MediaRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+
+    public function findPublicByTenant(int $tenantId): array
+    {
+        return $this->createQueryBuilder('m')
+            ->andWhere('m.tenant = :tenant')
+            ->setParameter('tenant', $tenantId)
+            ->getQuery()
+            ->getResult();
+    }
 }

@@ -48,6 +48,7 @@ class Visualisation extends AbstractTenantEntity implements TenantAwareInterface
     private ?Bloc $bloc = null;
 
     #[ORM\ManyToOne(inversedBy: 'visualisations')]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?Dataset $dataset = null;
 
     public function getId(): ?int
