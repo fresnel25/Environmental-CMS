@@ -3,18 +3,31 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
 use App\Repository\VisualisationRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: VisualisationRepository::class)]
-#[ApiResource()]
-class Visualisation
+#[ORM\HasLifecycleCallbacks]
+#[ApiResource(operations: [
+    new GetCollection(security: "is_granted('PUBLIC_ACCESS')"),
+    new Get(security: "is_granted('PUBLIC_ACCESS')"),
+    new Post(securityPostDenormalize: "
+        is_granted('ROLE_AUTEUR') 
+        or is_granted('ROLE_EDITEUR') 
+        or is_granted('ROLE_DATA_PROVIDER') 
+        or is_granted('ROLE_ADMINISTRATEUR')
+    "),
+    new Patch(security: "is_granted('ROLE_DESIGNER') or is_granted('ROLE_ADMINISTRATEUR')"),
+    new Delete(security: "is_granted('ROLE_ADMINISTRATEUR')")
+])]
+class Visualisation extends AbstractTenantEntity implements TenantAwareInterface
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
 
     #[ORM\Column(length: 255)]
     private ?string $type_visualisation = null;
@@ -30,12 +43,6 @@ class Visualisation
 
     #[ORM\Column(type: Types::TEXT)]
     private ?string $note = null;
-
-    #[ORM\Column]
-    private ?\DateTimeImmutable $created_at = null;
-
-    #[ORM\Column]
-    private ?\DateTimeImmutable $updated_at = null;
 
     #[ORM\OneToOne(mappedBy: 'visualisation', cascade: ['persist', 'remove'])]
     private ?Bloc $bloc = null;
@@ -108,30 +115,6 @@ class Visualisation
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeImmutable
-    {
-        return $this->created_at;
-    }
-
-    public function setCreatedAt(\DateTimeImmutable $created_at): static
-    {
-        $this->created_at = $created_at;
-
-        return $this;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeImmutable
-    {
-        return $this->updated_at;
-    }
-
-    public function setUpdatedAt(\DateTimeImmutable $updated_at): static
-    {
-        $this->updated_at = $updated_at;
-
-        return $this;
-    }
-
     public function getBloc(): ?Bloc
     {
         return $this->bloc;
@@ -165,4 +148,6 @@ class Visualisation
 
         return $this;
     }
+
+    
 }

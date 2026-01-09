@@ -2,21 +2,50 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiProperty;
+use App\Entity\TenantAwareInterface;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
 use App\Repository\ArticleRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: ArticleRepository::class)]
-#[ApiResource()]
-class Article
+#[ORM\HasLifecycleCallbacks]
+#[ApiResource(operations: [
+    // Collection publique
+    new GetCollection(security: "is_granted('PUBLIC_ACCESS')"),
+
+    // Item : même tenant
+    new Get(security: "is_granted('TENANT_VIEW', object)"),
+
+    // Création : rôles auteur/éditeur/admin
+    new Post(securityPostDenormalize: "
+        is_granted('ROLE_AUTEUR') 
+        or is_granted('ROLE_EDITEUR') 
+        or is_granted('ROLE_ADMINISTRATEUR')
+    "),
+
+    // Modification : tenant + rôle
+    new Patch(security: "
+        is_granted('TENANT_EDIT', object) 
+        and (is_granted('ROLE_AUTEUR') and object.getCreatedBy() == user
+             or is_granted('ROLE_EDITEUR') 
+             or is_granted('ROLE_ADMINISTRATEUR'))
+    "),
+
+    // Suppression : tenant + admin
+    new Delete(security: "is_granted('TENANT_DELETE', object) and is_granted('ROLE_ADMINISTRATEUR')")
+])]
+class Article extends AbstractTenantEntity implements TenantAwareInterface
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
 
     #[ORM\Column(length: 255)]
     private ?string $titre = null;
@@ -24,8 +53,8 @@ class Article
     #[ORM\Column(type: Types::TEXT)]
     private ?string $resume = null;
 
-    #[ORM\Column]
-    private ?bool $status = null;
+    #[ORM\Column(type: 'boolean')]
+    private bool $status = false;
 
     #[ORM\Column(length: 255)]
     private ?string $slug = null;
@@ -33,17 +62,12 @@ class Article
     #[ORM\Column(length: 255)]
     private ?string $categorie = null;
 
-    #[ORM\Column]
-    private ?\DateTimeImmutable $created_at = null;
-
-    #[ORM\Column]
-    private ?\DateTimeImmutable $updated_at = null;
-
     /**
      * @var Collection<int, Bloc>
      */
     #[ORM\OneToMany(targetEntity: Bloc::class, mappedBy: 'article', orphanRemoval: true)]
     private Collection $blocs;
+
 
     public function __construct()
     {
@@ -111,30 +135,6 @@ class Article
     public function setCategorie(string $categorie): static
     {
         $this->categorie = $categorie;
-
-        return $this;
-    }
-
-    public function getCreatedAt(): ?\DateTimeImmutable
-    {
-        return $this->created_at;
-    }
-
-    public function setCreatedAt(\DateTimeImmutable $created_at): static
-    {
-        $this->created_at = $created_at;
-
-        return $this;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeImmutable
-    {
-        return $this->updated_at;
-    }
-
-    public function setUpdatedAt(\DateTimeImmutable $updated_at): static
-    {
-        $this->updated_at = $updated_at;
 
         return $this;
     }

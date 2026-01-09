@@ -3,26 +3,31 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
 use App\Repository\NoteRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: NoteRepository::class)]
-#[ApiResource()]
-class Note
+#[ORM\HasLifecycleCallbacks]
+#[ApiResource(operations: [
+    new GetCollection(security: "is_granted('PUBLIC_ACCESS')"),
+    new Get(security: "is_granted('PUBLIC_ACCESS')"),
+    new Post(securityPostDenormalize: "is_granted('ROLE_ABONNE') or is_granted('ROLE_ADMINISTRATEUR')"),
+    new Patch(security: "
+        is_granted('ROLE_ABONNE') and object.getCreatedBy() == user 
+        or is_granted('ROLE_ADMINISTRATEUR')
+    "),
+    new Delete(security: "is_granted('ROLE_ADMINISTRATEUR')")
+])]
+class Note extends AbstractTenantEntity implements TenantAwareInterface
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
 
     #[ORM\Column(nullable: true)]
     private ?int $valeur = null;
-
-    #[ORM\Column]
-    private ?\DateTimeImmutable $created_at = null;
-
-    #[ORM\Column]
-    private ?\DateTimeImmutable $updated_at = null;
 
     #[ORM\ManyToOne(inversedBy: 'notes')]
     private ?Bloc $bloc = null;
@@ -40,30 +45,6 @@ class Note
     public function setValeur(?int $valeur): static
     {
         $this->valeur = $valeur;
-
-        return $this;
-    }
-
-    public function getCreatedAt(): ?\DateTimeImmutable
-    {
-        return $this->created_at;
-    }
-
-    public function setCreatedAt(\DateTimeImmutable $created_at): static
-    {
-        $this->created_at = $created_at;
-
-        return $this;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeImmutable
-    {
-        return $this->updated_at;
-    }
-
-    public function setUpdatedAt(\DateTimeImmutable $updated_at): static
-    {
-        $this->updated_at = $updated_at;
 
         return $this;
     }

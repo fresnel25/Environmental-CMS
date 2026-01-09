@@ -1,9 +1,20 @@
-import React from 'react'
+import { useContext } from "react";
+import { Moon, Sun } from "lucide-react";
+import { ThemeContext } from "../Context/ThemeContextProvider";
+import Input from "../Utils/Input";
 
 const Header = () => {
-  return (
-    <div className="bg-white h-16 px-4">Header</div>
-  )
-}
+  const { theme, toggleTheme } = useContext(ThemeContext);
 
-export default Header
+  return (
+    <div className="bg-white h-16 px-4 flex justify-between items-center">
+      <Input placeholder="Rechercher..." />
+
+      <button className="text-2xl" onClick={toggleTheme}>
+        {theme === "light" ? <Moon /> : <Sun />}
+      </button>
+    </div>
+  );
+};
+
+export default Header;
