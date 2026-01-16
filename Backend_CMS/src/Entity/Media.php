@@ -9,12 +9,16 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use App\Repository\MediaRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
+
 #[ORM\Entity(repositoryClass: MediaRepository::class)]
 #[ORM\HasLifecycleCallbacks]
-#[ApiResource(operations: [
+#[ApiResource(
+    operations: [
     new GetCollection(security: "is_granted('PUBLIC_ACCESS')"),
     new Get(security: "is_granted('PUBLIC_ACCESS')"),
     new Post(securityPostDenormalize: "
@@ -36,6 +40,13 @@ class Media extends AbstractTenantEntity implements TenantAwareInterface
 
     #[ORM\Column(length: 255)]
     private ?string $titre = null;
+
+    /**
+     * @var Collection<int, Bloc>
+     */
+    #[ORM\OneToMany(targetEntity: Bloc::class, mappedBy: 'media')]
+    private Collection $blocs;
+
 
     public function getId(): ?int
     {
@@ -74,6 +85,36 @@ class Media extends AbstractTenantEntity implements TenantAwareInterface
     public function setTitre(string $titre): static
     {
         $this->titre = $titre;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Bloc>
+     */
+    public function getBlocs(): Collection
+    {
+        return $this->blocs;
+    }
+
+    public function addBloc(Bloc $bloc): static
+    {
+        if (!$this->blocs->contains($bloc)) {
+            $this->blocs->add($bloc);
+            $bloc->setMedia($this);
+        }
+
+        return $this;
+    }
+
+    public function removeBloc(Bloc $bloc): static
+    {
+        if ($this->blocs->removeElement($bloc)) {
+            // set the owning side to null (unless already changed)
+            if ($bloc->getMedia() === $this) {
+                $bloc->setMedia(null);
+            }
+        }
 
         return $this;
     }

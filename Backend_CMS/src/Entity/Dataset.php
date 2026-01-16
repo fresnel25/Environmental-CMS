@@ -13,12 +13,14 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: DatasetRepository::class)]
 #[ORM\HasLifecycleCallbacks]
 #[ApiResource(operations: [
+
     new GetCollection(security: "is_granted('ROLE_FOURNISSEUR_DONNEES') or is_granted('ROLE_ADMINISTRATEUR')"),
-    new Get(security: "is_granted('ROLE_FOURNISSEUR_DONNEES') or is_granted('ROLE_ADMINISTRATEUR')"),
+    new Get(security: "is_granted('ROLE_FOURNISSEUR_DONNEES') or is_granted('ROLE_ADMINISTRATEUR')", normalizationContext: ['groups' => ['dataset:read']]),
     new Post(securityPostDenormalize: "
         is_granted('ROLE_FOURNISSEUR_DONNEES') 
         or is_granted('ROLE_ADMINISTRATEUR')
@@ -29,33 +31,51 @@ use Doctrine\ORM\Mapping as ORM;
 class Dataset extends AbstractTenantEntity implements TenantAwareInterface
 {
 
+    #[Groups(['dataset:read'])]
     #[ORM\Column(length: 255)]
     private ?string $titre = null;
 
+    #[Groups(['dataset:read'])]
     #[ORM\Column(type: Types::TEXT)]
     private ?string $description = null;
 
+    #[Groups(['dataset:read'])]
     #[ORM\Column(length: 255)]
     private ?string $type_source = null;
 
+    #[Groups(['dataset:read'])]
     #[ORM\Column(length: 255)]
     private ?string $url_source = null;
 
-
+    #[Groups(['dataset:read'])]
     #[ORM\Column(length: 5, options: ['default' => ';'])]
     private ?string $delimiter = ';';
 
     /**
      * @var Collection<int, ColonneDataset>
      */
-    #[ORM\OneToMany(targetEntity: ColonneDataset::class, mappedBy: 'dataset')]
+    #[Groups(['dataset:read'])]
+    #[ORM\OneToMany(
+        targetEntity: ColonneDataset::class,
+        mappedBy: 'dataset',
+        cascade: ['remove'],
+        orphanRemoval: true
+    )]
     private Collection $colonnes;
 
     /**
      * @var Collection<int, Visualisation>
      */
-    #[ORM\OneToMany(targetEntity: Visualisation::class, mappedBy: 'dataset')]
+    #[ORM\OneToMany(
+        targetEntity: Visualisation::class,
+        mappedBy: 'dataset',
+        cascade: ['remove'],
+        orphanRemoval: true
+    )]
     private Collection $visualisations;
+
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $api_config = null;
 
     public function __construct()
     {
@@ -184,6 +204,18 @@ class Dataset extends AbstractTenantEntity implements TenantAwareInterface
                 $visualisation->setDataset(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getApiConfig(): ?array
+    {
+        return $this->api_config;
+    }
+
+    public function setApiConfig(?array $api_config): static
+    {
+        $this->api_config = $api_config;
 
         return $this;
     }

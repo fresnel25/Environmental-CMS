@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
@@ -9,6 +8,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use App\Processor\BlocProcessor;
 use App\Repository\BlocRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -19,12 +19,12 @@ use Doctrine\ORM\Mapping as ORM;
 #[ApiResource(operations: [
     new GetCollection(security: "is_granted('PUBLIC_ACCESS')"),
     new Get(security: "is_granted('TENANT_VIEW', object)"),
-    new Post(securityPostDenormalize: "
+    new Post(processor: BlocProcessor::class, securityPostDenormalize: "
         is_granted('ROLE_AUTEUR') 
         or is_granted('ROLE_EDITEUR') 
         or is_granted('ROLE_ADMINISTRATEUR')
     "),
-    new Patch(security: "
+    new Patch(processor: BlocProcessor::class, security: "
         is_granted('TENANT_EDIT', object) 
         and (is_granted('ROLE_AUTEUR') and object.getCreatedBy() == user
              or is_granted('ROLE_EDITEUR') 
@@ -34,16 +34,14 @@ use Doctrine\ORM\Mapping as ORM;
 ])]
 class Bloc extends AbstractTenantEntity implements TenantAwareInterface
 {
+
     #[ORM\Column(length: 255)]
     private ?string $type_bloc = null;
 
     #[ORM\Column]
     private ?int $position = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $titre = null;
-
-    #[ORM\Column]
+    #[ORM\Column(type: 'json')]
     private array $contenu_json = [];
 
     #[ORM\ManyToOne(inversedBy: 'blocs')]
@@ -54,11 +52,16 @@ class Bloc extends AbstractTenantEntity implements TenantAwareInterface
     private ?Visualisation $visualisation = null;
 
 
+    #[ORM\ManyToOne()]
+    private ?Media $media = null;
+
     /**
      * @var Collection<int, Note>
      */
     #[ORM\OneToMany(targetEntity: Note::class, mappedBy: 'bloc')]
     private Collection $notes;
+
+
 
 
     public function __construct()
@@ -91,18 +94,6 @@ class Bloc extends AbstractTenantEntity implements TenantAwareInterface
     public function setPosition(int $position): static
     {
         $this->position = $position;
-
-        return $this;
-    }
-
-    public function getTitre(): ?string
-    {
-        return $this->titre;
-    }
-
-    public function setTitre(string $titre): static
-    {
-        $this->titre = $titre;
 
         return $this;
     }
@@ -169,6 +160,18 @@ class Bloc extends AbstractTenantEntity implements TenantAwareInterface
                 $note->setBloc(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getMedia(): ?Media
+    {
+        return $this->media;
+    }
+
+    public function setMedia(?Media $media): static
+    {
+        $this->media = $media;
 
         return $this;
     }
