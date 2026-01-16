@@ -2,11 +2,11 @@ import React from "react";
 
 const CardTable = ({ columns = [], data = [] }) => {
   return (
-    <div className="card">
-      <div className="overflow-x-auto card-body">
-        <table className="table">
+    <div className="card mt-5">
+      <div className="overflow-x-auto rounded-box border border-base-content/5 bg-gray-100">
+        <table className="table text-dark font-bold">
           {/* Table Header */}
-          <thead className="dark:bg-cyan-950">
+          <thead className="dark:bg-base-100 ">
             <tr>
               {columns.map((col) => (
                 <th key={col.key}>{col.label}</th>

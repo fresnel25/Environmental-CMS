@@ -1,13 +1,16 @@
 import React from "react";
 import Page_Title from "../Page-Title/Page_Title";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import GetAllUser from "./GetAllUser";
 
 const Utilisateur = () => {
   const navigate = useNavigate();
+  const { tenantSlug } = useParams(); // on récupère le slug depuis l’URL
+
   const handleClick = () => {
-    navigate("/dashboard/create_user");
+    navigate(`/dashboard/${tenantSlug}/utilisateurs/create`);
   };
+
   return (
     <div>
       <div className="flex flex-col">

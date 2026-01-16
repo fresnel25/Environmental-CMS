@@ -20,12 +20,6 @@ use Symfony\Component\Security\Core\User\UserInterface;
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
 #[ORM\HasLifecycleCallbacks]
 #[ApiResource(operations: [
-    new Post(
-        name: 'register',
-        uriTemplate: '/register',
-        controller: UserController::class,
-        security: "is_granted('PUBLIC_ACCESS')"
-    ),
     new GetCollection(security: "is_granted('ROLE_ADMINISTRATEUR')"),
     new Get(security: "is_granted('VIEW', object) or object == user"),
     new Put(security: "is_granted('EDIT', object) or object == user"),
@@ -71,11 +65,11 @@ implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->tenant;
     }
 
-    public function setTenant(Tenant $tenant): static
+    public function setTenant(?Tenant $tenant): static
     {
         $this->tenant = $tenant;
         return $this;
-    }
+    } 
 
 
     public function getId(): ?int
