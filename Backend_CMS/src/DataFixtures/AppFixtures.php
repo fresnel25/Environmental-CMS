@@ -204,7 +204,7 @@ class AppFixtures extends Fixture
                 $bloc = new Bloc();
                 $type = $this->faker->randomElement(['text', 'title', 'media', 'visualisation']);
                 $bloc->setTypeBloc($type);
-                $bloc->setTitre($this->faker->sentence(2));
+                // $bloc->setTitre($this->faker->sentence(2));
                 $bloc->setArticle($article);
                 $bloc->setPosition($i);
                 $bloc->setTenant($article->getTenant());
