@@ -34,7 +34,6 @@ class AppFixtures extends Fixture
             $plan->setDescription("Offre $name");
 
             $manager->persist($plan);
-        }
 
         $manager->flush();
     }
