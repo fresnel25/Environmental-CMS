@@ -131,8 +131,19 @@ function App() {
 
               <Route
                 path="designer/article/:id"
-                element={<ThemeEditor scope="article" />}
+                element={
+                  <ProtectedRoute
+                    roles={[
+                      "ROLE_DESIGNER",
+                      "ROLE_EDITEUR",
+                      "ROLE_ADMINISTRATEUR",
+                    ]}
+                  >
+                    <ThemeEditor scope="article" />
+                  </ProtectedRoute>
+                }
               />
+
               <Route
                 path="designer/bloc/:id"
                 element={<ThemeEditor scope="bloc" />}
@@ -155,11 +166,7 @@ function App() {
                 path="Visualisations/create"
                 element={
                   <ProtectedRoute
-                    roles={[
-                      "ROLE_AUTEUR",
-                      "ROLE_EDITEUR",
-                      "ROLE_ADMINISTRATEUR",
-                    ]}
+                    roles={["ROLE_FOURNISSEUR_DONNEES", "ROLE_ADMINISTRATEUR"]}
                   >
                     <CreateVisual />
                   </ProtectedRoute>
@@ -172,6 +179,7 @@ function App() {
                   <ProtectedRoute
                     roles={[
                       "ROLE_AUTEUR",
+                      "ROLE_FOURNISSEUR_DONNEES",
                       "ROLE_EDITEUR",
                       "ROLE_ADMINISTRATEUR",
                     ]}
@@ -188,6 +196,7 @@ function App() {
                     roles={[
                       "ROLE_AUTEUR",
                       "ROLE_EDITEUR",
+                      "ROLE_FOURNISSEUR_DONNEES",
                       "ROLE_ADMINISTRATEUR",
                     ]}
                   >
@@ -222,7 +231,7 @@ function App() {
                 path="datasets/:id"
                 element={
                   <ProtectedRoute
-                    roles={["ROLE_DESIGNER", "ROLE_ADMINISTRATEUR"]}
+                    roles={["ROLE_DESIGNER", "ROLE_FOURNISSEUR_DONNEES","ROLE_ADMINISTRATEUR"]}
                   >
                     <DetailDataset />
                   </ProtectedRoute>
@@ -233,7 +242,7 @@ function App() {
                 path="datasets/create"
                 element={
                   <ProtectedRoute
-                    roles={["ROLE_DESIGNER", "ROLE_ADMINISTRATEUR"]}
+                    roles={["ROLE_DESIGNER", "ROLE_FOURNISSEUR_DONNEES","ROLE_ADMINISTRATEUR"]}
                   >
                     <CreateDataset />
                   </ProtectedRoute>

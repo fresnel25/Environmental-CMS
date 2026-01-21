@@ -13,7 +13,7 @@ const Unauthorized = () => {
     <div className="mt-10">
       <section className="page_404">
         <div className="four_zero_four_bl">
-          <h1 className="text-center ">404</h1>
+          <h1 className="text-center "></h1>
         </div>
 
         <div className="text-base-100 text-2xl text-center">

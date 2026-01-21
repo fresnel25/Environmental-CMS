@@ -2,17 +2,22 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Bar, Line, Pie, Scatter } from "react-chartjs-2";
 import { getVisualisation } from "../../API/visualisationApi";
-import "../../chartjs"; // ton setup Chart.js global
+import "../../chartjs"; // setup global Chart.js
 
-// Palette fixe
 const PALETTE = [
-  "#3B82F6", "#EF4444", "#F59E0B", "#10B981",
-  "#8B5CF6", "#EC4899", "#FBBF24", "#6366F1"
+  "#3B82F6",
+  "#EF4444",
+  "#F59E0B",
+  "#10B981",
+  "#8B5CF6",
+  "#EC4899",
+  "#FBBF24",
+  "#6366F1",
 ];
 
 const MAX_POINTS = 100; // Nombre maximum de points affichés
 
-const VisualisationRenderer = ({ visualisationId }) => {
+const VisualisationRenderer = ({ visualisationId, constrained = false }) => {
   const { id: paramId } = useParams();
   const finalId = visualisationId || paramId;
 
@@ -41,7 +46,7 @@ const VisualisationRenderer = ({ visualisationId }) => {
   // ===============================
   const step = Math.ceil(visu.labels.length / MAX_POINTS) || 1;
   const sampledLabels = visu.labels.filter((_, i) => i % step === 0);
-  const sampledDatasets = visu.datasets.map(ds => ({
+  const sampledDatasets = visu.datasets.map((ds) => ({
     ...ds,
     data: ds.data.filter((_, i) => i % step === 0),
   }));
@@ -52,9 +57,9 @@ const VisualisationRenderer = ({ visualisationId }) => {
   let chartDatasets;
   switch (type) {
     case "pie":
-      chartDatasets = sampledDatasets.map(ds => ({
+      chartDatasets = sampledDatasets.map((ds) => ({
         ...ds,
-        backgroundColor: PALETTE,
+        backgroundColor: PALETTE.slice(0, ds.data.length),
       }));
       break;
 
@@ -64,16 +69,16 @@ const VisualisationRenderer = ({ visualisationId }) => {
         ...ds,
         borderColor: PALETTE[index % PALETTE.length],
         backgroundColor: PALETTE[index % PALETTE.length],
-        pointBackgroundColor: PALETTE, // chaque point a une couleur
+        pointBackgroundColor: PALETTE,
         pointBorderColor: PALETTE,
         borderWidth: 2,
-        pointRadius: 3, // plus petit si beaucoup de points
+        pointRadius: ds.data.length > 50 ? 2 : 4, // réduit si beaucoup de points
         fill: false,
       }));
       break;
 
     case "bar":
-      chartDatasets = sampledDatasets.map(ds => ({
+      chartDatasets = sampledDatasets.map((ds) => ({
         ...ds,
         backgroundColor: PALETTE,
         borderColor: PALETTE,
@@ -95,13 +100,14 @@ const VisualisationRenderer = ({ visualisationId }) => {
   // ===============================
   const chartOptions = {
     responsive: true,
+    maintainAspectRatio: !constrained,
     plugins: {
       title: {
         display: !!visu.title,
         text: visu.title || "",
       },
       legend: {
-        display: true,
+        display: type !== "pie", // cacher la légende pour les camemberts
         position: "bottom",
       },
     },
@@ -125,16 +131,23 @@ const VisualisationRenderer = ({ visualisationId }) => {
   // ===============================
   // Scroll horizontal si trop large
   // ===============================
-  const containerWidth = Math.max(sampledLabels.length * 10, 600); // 10px par point, min 600px
+  const pointWidth = 40; // largeur approximative par point/bar
+/*   const containerWidth = Math.max(sampledLabels.length * pointWidth, 600); */
 
   return (
-    <div style={{ width: "100%", overflowX: "auto" }}>
-      <div style={{ width: containerWidth }}>
-        {type === "bar" && <Bar data={chartData} options={chartOptions} />}
-        {type === "line" && <Line data={chartData} options={chartOptions} />}
-        {type === "pie" && <Pie data={chartData} options={chartOptions} />}
-        {type === "scatter" && <Scatter data={chartData} options={chartOptions} />}
-      </div>
+    <div
+      style={{
+        width: "100%",
+        height: "100%", // <--- prend la hauteur du parent (card)
+        overflowX: type === "bar" || type === "line" ? "auto" : "hidden",
+      }}
+    >
+      {type === "bar" && <Bar data={chartData} options={chartOptions} />}
+      {type === "line" && <Line data={chartData} options={chartOptions} />}
+      {type === "pie" && <Pie data={chartData} options={chartOptions} />}
+      {type === "scatter" && (
+        <Scatter data={chartData} options={chartOptions} />
+      )}
     </div>
   );
 };

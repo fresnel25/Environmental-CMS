@@ -10,14 +10,16 @@ import { createUtilisateur } from "../../API/utilisateurApi";
 const ROLE_OPTIONS = [
   { label: "Administrateur", value: "ROLE_ADMINISTRATEUR" },
   { label: "Éditeur", value: "ROLE_EDITEUR" },
+  { label: "Designeur", value: "ROLE_DESIGNER" },
   { label: "Auteur", value: "ROLE_AUTEUR" },
+  { label: "Fournisseur de données", value: "ROLE_FOURNISSEUR_DONNEES" },
   { label: "Abonné", value: "ROLE_ABONNE" },
 ];
 
 const CreateUser = () => {
   const { tenantSlug } = useParams();
   const navigate = useNavigate();
-   const [form, setForm] = useState({
+  const [form, setForm] = useState({
     nom: "",
     prenom: "",
     email: "",

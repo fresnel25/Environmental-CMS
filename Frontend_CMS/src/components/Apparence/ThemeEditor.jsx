@@ -48,7 +48,7 @@ const ThemeEditor = ({ scope }) => {
     <div className="p-6 space-y-6">
       <Page_Title Title={`Designer ${scope}`} />
 
-      <div className="grid grid-cols-12 gap-6 mt-5">
+      <div>
         {/* Formulaire */}
         <div className="col-span-4">
           <ThemeForm
@@ -59,15 +59,14 @@ const ThemeEditor = ({ scope }) => {
           />
         </div>
 
-        {/* Preview */}
-        <div className="col-span-8">
+        {/*  <div className="col-span-8">
           <ThemePreview
             scope={scope}
             targetId={id}
             styles={styles}
             content={content}
           />
-        </div>
+        </div> */}
       </div>
     </div>
   );

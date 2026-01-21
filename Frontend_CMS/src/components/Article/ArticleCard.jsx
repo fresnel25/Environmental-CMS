@@ -4,32 +4,61 @@ const ArticleCard = ({ article, canNote }) => {
   const theme = article.theme?.variable_css || {};
 
   const articleStyle = {
-    backgroundColor: theme.backgroundColor,
-    color: theme.textColor,
-    borderRadius: theme.borderRadius,
-    fontSize: theme.fontSize,
+    backgroundColor: theme.article?.backgroundColor,
+    maxWidth: theme.article?.maxWidth,
+    padding: theme.article?.padding,
+    marginTop: theme.article?.marginTop,
+    borderRadius: theme.article?.borderRadius,
+    boxShadow: theme.article?.shadow ? "0 20px 40px rgba(0,0,0,0.1)" : "none",
+    marginLeft: theme.article?.align === "center" ? "auto" : undefined,
+    marginRight: theme.article?.align === "center" ? "auto" : undefined,
+  };
+
+  const blocsLayout =
+    theme.blocs?.layout === "grid"
+      ? "grid"
+      : theme.blocs?.layout === "row"
+        ? "flex"
+        : "flex";
+
+  const blocsStyle = {
+    display: blocsLayout,
+    flexDirection: blocsLayout === "flex" ? "column" : undefined,
+    gridTemplateColumns:
+      blocsLayout === "grid"
+        ? `repeat(${theme.blocs?.columns || 1}, minmax(0, 1fr))`
+        : undefined,
+    gap: theme.blocs?.gap || "1.5rem",
+    justifyContent:
+      article.blocs.length === 1
+        ? theme.blocs?.alignSingle === "center"
+          ? "center"
+          : "flex-start"
+        : "space-between",
   };
 
   return (
-    <div className="card shadow-lg transition-all" style={articleStyle}>
-      <div className="card-body space-y-6">
-        <h2
-          className="card-title text-2xl font-bold"
-          style={{ color: theme.titleColor }}
-        >
-          {article.titre}
-        </h2>
+    <article style={articleStyle}>
+      <h2
+        style={{
+          color: theme.text?.titleColor,
+          fontSize: "2rem",
+          marginBottom: "1.5rem",
+        }}
+      >
+        {article.titre}
+      </h2>
 
-        {article.blocs?.map((bloc) => (
+      <div style={blocsStyle}>
+        {article.blocs.map((bloc) => (
           <BlocRenderer
             key={bloc.id ?? bloc.uuid}
             bloc={bloc}
             canNote={canNote}
-            articleTheme={theme}
           />
         ))}
       </div>
-    </div>
+    </article>
   );
 };
 
