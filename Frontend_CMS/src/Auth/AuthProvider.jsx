@@ -17,7 +17,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem("token", data.token);
     api.defaults.headers.common["Authorization"] = `Bearer ${data.token}`;
 
-    const user = await fetchUser(); // 👈 on retourne le user
+    const user = await fetchUser(); 
     return user;
   };
 

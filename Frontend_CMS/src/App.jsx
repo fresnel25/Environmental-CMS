@@ -29,6 +29,12 @@ import Page404 from "./components/Page404/Page404";
 import ArticlesNotes from "./components/Article/ArticlesNotes";
 import AbonneLayout from "./components/Layout/AbonneLayout";
 import PublicTenantLayout from "./components/Layout/PublicTenantLayout";
+import ThemeEditor from "./components/Apparence/ThemeEditor";
+import Index from "./components/HomeApp/Index";
+import Home from "./components/HomeApp/Home";
+import Features from "./components/HomeApp/Features";
+import PricingSection from "./components/HomeApp/PricingSection";
+import Signup from "./components/HomeApp/Signup";
 
 function App() {
   return (
@@ -37,11 +43,16 @@ function App() {
         <BrowserRouter>
           <ToastContainer />
           <Routes>
+            <Route path="/" element={<Index />}>
+              <Route index element={<Home />} />
+              <Route path="/features" element={<Features />} />
+              <Route path="/pricing" element={<PricingSection />} />
+              <Route path="/signup" element={<Signup />} />
+            </Route>
 
             {/* Routes publiques */}
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-  
 
             {/* PUBLIC TENANT */}
             <Route path="/:tenantSlug" element={<PublicTenantLayout />}>
@@ -118,6 +129,26 @@ function App() {
                 }
               />
 
+              <Route
+                path="designer/article/:id"
+                element={
+                  <ProtectedRoute
+                    roles={[
+                      "ROLE_DESIGNER",
+                      "ROLE_EDITEUR",
+                      "ROLE_ADMINISTRATEUR",
+                    ]}
+                  >
+                    <ThemeEditor scope="article" />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="designer/bloc/:id"
+                element={<ThemeEditor scope="bloc" />}
+              />
+
               {/*  Auteurs, éditeurs, admins */}
               {/*   <Route
               path="blocs"
@@ -135,11 +166,7 @@ function App() {
                 path="Visualisations/create"
                 element={
                   <ProtectedRoute
-                    roles={[
-                      "ROLE_AUTEUR",
-                      "ROLE_EDITEUR",
-                      "ROLE_ADMINISTRATEUR",
-                    ]}
+                    roles={["ROLE_FOURNISSEUR_DONNEES", "ROLE_ADMINISTRATEUR"]}
                   >
                     <CreateVisual />
                   </ProtectedRoute>
@@ -152,6 +179,7 @@ function App() {
                   <ProtectedRoute
                     roles={[
                       "ROLE_AUTEUR",
+                      "ROLE_FOURNISSEUR_DONNEES",
                       "ROLE_EDITEUR",
                       "ROLE_ADMINISTRATEUR",
                     ]}
@@ -168,6 +196,7 @@ function App() {
                     roles={[
                       "ROLE_AUTEUR",
                       "ROLE_EDITEUR",
+                      "ROLE_FOURNISSEUR_DONNEES",
                       "ROLE_ADMINISTRATEUR",
                     ]}
                   >
@@ -202,7 +231,7 @@ function App() {
                 path="datasets/:id"
                 element={
                   <ProtectedRoute
-                    roles={["ROLE_DESIGNER", "ROLE_ADMINISTRATEUR"]}
+                    roles={["ROLE_DESIGNER", "ROLE_FOURNISSEUR_DONNEES","ROLE_ADMINISTRATEUR"]}
                   >
                     <DetailDataset />
                   </ProtectedRoute>
@@ -213,7 +242,7 @@ function App() {
                 path="datasets/create"
                 element={
                   <ProtectedRoute
-                    roles={["ROLE_DESIGNER", "ROLE_ADMINISTRATEUR"]}
+                    roles={["ROLE_DESIGNER", "ROLE_FOURNISSEUR_DONNEES","ROLE_ADMINISTRATEUR"]}
                   >
                     <CreateDataset />
                   </ProtectedRoute>
@@ -268,7 +297,6 @@ function App() {
 
               <Route path="supports" element={<Support />} />
             </Route>
-            
           </Routes>
         </BrowserRouter>
       </AuthProvider>

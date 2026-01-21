@@ -1,11 +1,13 @@
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { getArticle } from "../../API/articleApi";
+import { useNavigate, useParams } from "react-router-dom";
 import GetAllBlocsArticle from "../Blocs/GetAllBlocsArticle";
-import CreateBloc from "../Blocs/CreateBloc";
+import { getArticle } from "../../API/articleApi";
+import { useEffect, useState } from "react";
+import Page_Title from "../Page-Title/Page_Title";
 
 const DetailArticle = () => {
   const { id } = useParams();
+  const { tenantSlug } = useParams();
+  const navigate = useNavigate();
   const [article, setArticle] = useState(null);
 
   const loadArticle = () => {
@@ -19,18 +21,26 @@ const DetailArticle = () => {
   if (!article) return <p>Chargement...</p>;
 
   return (
-    <div className="space-y-6">
-      {/* INFOS ARTICLE */}
-      <div className="card p-4">
-        <h1 className="text-2xl font-bold">{article.titre}</h1>
-        <p className="opacity-70">{article.resume}</p>
+    <div>
+      <Page_Title Title={`Détail de l'article ${article.titre}`} />
+
+      {/* DESIGN ARTICLE */}
+      <div className="flex justify-end mt-4">
+        <button
+          className="btn btn-outline bg-cyan-950 text-white"
+          onClick={() => navigate(`/dashboard/${tenantSlug}/designer/article/${article.id}`)}
+        >
+          Designer l’article
+        </button>
       </div>
 
-      {/* LISTE BLOCS */}
-      <GetAllBlocsArticle blocs={article.blocs || []} onChange={loadArticle} />
-
-      {/* AJOUT BLOC */}
-      <CreateBloc articleId={id} onCreated={loadArticle} />
+      {/* BLOCS */}
+      <div className="space-y-6 mt-6">
+        <GetAllBlocsArticle
+          blocs={article.blocs || []}
+          onChange={loadArticle}
+        />
+      </div>
     </div>
   );
 };

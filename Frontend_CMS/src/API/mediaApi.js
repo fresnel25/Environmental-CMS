@@ -11,4 +11,6 @@ export const uploadMedia = (file) => {
 
 export const getMedias = () => api.get("/media");
 
+export const getMedia = (id) => api.get(`/media/${id}`);
+
 export const deleteMedia = (id) => api.delete(`/media/${id}`);

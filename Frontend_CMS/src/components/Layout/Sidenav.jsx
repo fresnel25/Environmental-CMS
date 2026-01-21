@@ -12,6 +12,7 @@ import {
   Paintbrush,
   Image,
   Database,
+  ChartNoAxesCombined,
 } from "lucide-react";
 
 const Sidenav = ({ tenantSlug }) => {
@@ -27,7 +28,7 @@ const Sidenav = ({ tenantSlug }) => {
     }
   };
 
-  // 🔹 fonctions qui retournent un tableau
+
   const menuTop = (tenantSlug) => [
     {
       label: "Tableau de bord",
@@ -42,17 +43,17 @@ const Sidenav = ({ tenantSlug }) => {
       to: `/dashboard/${tenantSlug}/articles`,
     },
     {
-      label: "Blocs",
-      key: "blocs",
-      icon: <Newspaper size={20} />,
-      to: `/dashboard/${tenantSlug}/blocs`,
+      label: "Visualisations",
+      key: "Visualisation",
+      icon: <ChartNoAxesCombined size={20} />,
+      to: `/dashboard/${tenantSlug}/Visualisations`,
     },
-    {
+ /*    {
       label: "Apparences",
       key: "apparence",
       icon: <Paintbrush size={20} />,
       to: `/dashboard/${tenantSlug}/apparences`,
-    },
+    }, */
     {
       label: "Medias",
       key: "media",
@@ -103,7 +104,7 @@ const Sidenav = ({ tenantSlug }) => {
         </h3>
       </div>
 
-      {/* 🔹 On appelle les fonctions avec tenantSlug pour récupérer les tableaux */}
+      {/*  On appelle les fonctions avec tenantSlug pour récupérer les tableaux */}
       <div className="flex-1 py-8 flex flex-col">
         <Navigation list={menuTop(tenantSlug)} />
       </div>

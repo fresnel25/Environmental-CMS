@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\MappedSuperclass]
 abstract class AbstractBaseEntity
@@ -10,6 +11,7 @@ abstract class AbstractBaseEntity
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['article:read', 'bloc:read'])]
     protected ?int $id = null;
 
     #[ORM\Column]

@@ -2,7 +2,9 @@ import React from 'react'
 
 const Apparence = () => {
   return (
-    <div>Apparence</div>
+    <div>
+      <Page_Title/>
+    </div>
   )
 }
 

@@ -5,7 +5,7 @@ import GetAllUser from "./GetAllUser";
 
 const Utilisateur = () => {
   const navigate = useNavigate();
-  const { tenantSlug } = useParams(); // on récupère le slug depuis l’URL
+  const { tenantSlug } = useParams(); 
 
   const handleClick = () => {
     navigate(`/dashboard/${tenantSlug}/utilisateurs/create`);

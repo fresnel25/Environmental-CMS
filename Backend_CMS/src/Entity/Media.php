@@ -13,11 +13,11 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: MediaRepository::class)]
 #[ORM\HasLifecycleCallbacks]
-#[ApiResource(
+#[ApiResource(normalizationContext: ['groups' => ['media:read']] ,
     operations: [
     new GetCollection(security: "is_granted('PUBLIC_ACCESS')"),
     new Get(security: "is_granted('PUBLIC_ACCESS')"),
@@ -30,14 +30,17 @@ use Doctrine\ORM\Mapping as ORM;
     new Delete(security: "is_granted('ROLE_ADMINISTRATEUR')")
 ])]
 class Media extends AbstractTenantEntity implements TenantAwareInterface
-{
+{   
 
+    #[Groups(['bloc:read', 'media:read'])]
     #[ORM\Column(type: Types::TEXT)]
     private ?string $lien = null;
 
+    #[Groups(['bloc:read', 'media:read'])]
     #[ORM\Column(length: 255)]
     private ?string $type_img = null;
 
+    #[Groups(['bloc:read', 'media:read'])]
     #[ORM\Column(length: 255)]
     private ?string $titre = null;
 

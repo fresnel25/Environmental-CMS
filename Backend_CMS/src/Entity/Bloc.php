@@ -13,10 +13,12 @@ use App\Repository\BlocRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: BlocRepository::class)]
 #[ORM\HasLifecycleCallbacks]
-#[ApiResource(operations: [
+#[ApiResource(normalizationContext: ['groups' => ['article:read', 'bloc:read']], operations: [
+
     new GetCollection(security: "is_granted('PUBLIC_ACCESS')"),
     new Get(security: "is_granted('TENANT_VIEW', object)"),
     new Post(processor: BlocProcessor::class, securityPostDenormalize: "
@@ -36,12 +38,14 @@ class Bloc extends AbstractTenantEntity implements TenantAwareInterface
 {
 
     #[ORM\Column(length: 255)]
+    #[Groups(['article:read', 'bloc:read'])]
     private ?string $type_bloc = null;
 
     #[ORM\Column]
     private ?int $position = null;
 
     #[ORM\Column(type: 'json')]
+    #[Groups(['article:read', 'bloc:read'])]
     private array $contenu_json = [];
 
     #[ORM\ManyToOne(inversedBy: 'blocs')]
@@ -49,10 +53,12 @@ class Bloc extends AbstractTenantEntity implements TenantAwareInterface
     private ?Article $article = null;
 
     #[ORM\OneToOne(inversedBy: 'bloc', cascade: ['persist', 'remove'])]
+    #[Groups(['article:read', 'bloc:read'])]
     private ?Visualisation $visualisation = null;
 
 
     #[ORM\ManyToOne()]
+    #[Groups(['article:read', 'bloc:read'])]
     private ?Media $media = null;
 
     /**
@@ -60,6 +66,9 @@ class Bloc extends AbstractTenantEntity implements TenantAwareInterface
      */
     #[ORM\OneToMany(targetEntity: Note::class, mappedBy: 'bloc')]
     private Collection $notes;
+
+    #[ORM\Column(nullable: true)]
+    private ?array $style_override = null;
 
 
 
@@ -172,6 +181,18 @@ class Bloc extends AbstractTenantEntity implements TenantAwareInterface
     public function setMedia(?Media $media): static
     {
         $this->media = $media;
+
+        return $this;
+    }
+
+    public function getStyleOverride(): ?array
+    {
+        return $this->style_override;
+    }
+
+    public function setStyleOverride(?array $style_override): static
+    {
+        $this->style_override = $style_override;
 
         return $this;
     }

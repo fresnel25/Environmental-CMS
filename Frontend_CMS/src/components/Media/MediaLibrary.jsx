@@ -94,8 +94,8 @@ const MediaLibrary = ({ onSelect }) => {
       label: "Nom du fichier",
     },
 
-    {
-      key: "typeImg",
+    /* {
+      key: "typeImg",    
       label: "Type",
       render: (type) =>
         type ? (
@@ -105,7 +105,7 @@ const MediaLibrary = ({ onSelect }) => {
         ) : (
           <span className="badge badge-ghost">—</span>
         ),
-    },
+    }, */
 
     {
       key: "actions",

@@ -24,7 +24,7 @@ final class BlocProcessor implements ProcessorInterface
             return $data;
         }
 
-        // 👉 VALIDATION MÉTIER
+        //  VALIDATION MÉTIER
         BlocValidator::validate($data);
 
         $this->em->persist($data);
