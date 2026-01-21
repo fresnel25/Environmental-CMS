@@ -28,7 +28,7 @@ class TenantVoter extends Voter
             return false; // pas connecté
         }
 
-        // 🔑 Super admin a tous les droits
+        //  Super admin a tous les droits
         if (in_array('ROLE_SUPER_ADMIN', $user->getRoles(), true)) {
             return true;
         }

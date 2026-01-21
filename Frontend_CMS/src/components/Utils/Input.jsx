@@ -3,6 +3,7 @@ const Input = ({
   label,
   placeholder,
   type,
+  name,
   value,
   onChange,
 }) => {
@@ -19,6 +20,7 @@ const Input = ({
           className="input shadow-xl text-white rounded-xl w-96"
           placeholder={placeholder}
           value={value}
+          name={name}
           onChange={onChange}
         />
       </fieldset>

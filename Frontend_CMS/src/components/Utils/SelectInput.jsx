@@ -1,5 +1,3 @@
-import React from "react";
-
 const SelectInput = ({
   label,
   icon,
@@ -7,6 +5,7 @@ const SelectInput = ({
   placeholder = "Choisir une option",
   value,
   onChange,
+  
 }) => {
   return (
     <fieldset className="fieldset">
@@ -16,10 +15,12 @@ const SelectInput = ({
       </label>
 
       <select
+      
         className="select shadow-xl text-white rounded-xl w-96"
         value={value}
         onChange={(e) => onChange && onChange(e.target.value)}
       >
+        
         <option disabled>{placeholder}</option>
 
         {options.map((option, index) => (

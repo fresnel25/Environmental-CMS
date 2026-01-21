@@ -19,7 +19,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: ArticleRepository::class)]
 #[ORM\HasLifecycleCallbacks]
-#[ApiResource(operations: [
+#[ApiResource(normalizationContext: ['groups' => ['article:read']], operations: [
     // Collection publique
     new GetCollection(security: "is_granted('PUBLIC_ACCESS')"),
 
@@ -48,25 +48,36 @@ class Article extends AbstractTenantEntity implements TenantAwareInterface
 {
 
     #[ORM\Column(length: 255)]
+    #[Groups(['article:read'])]
     private ?string $titre = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Groups(['article:read'])]
     private ?string $resume = null;
 
     #[ORM\Column(type: 'boolean')]
+    #[Groups(['article:read'])]
     private bool $status = false;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['article:read'])]
     private ?string $slug = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['article:read'])]
     private ?string $categorie = null;
 
     /**
      * @var Collection<int, Bloc>
      */
     #[ORM\OneToMany(targetEntity: Bloc::class, mappedBy: 'article', orphanRemoval: true)]
+    #[Groups(['article:read'])]
     private Collection $blocs;
+
+
+    #[ORM\ManyToOne(inversedBy: 'articles')]
+    #[Groups(['article:read'])]
+    private ?Theme $theme = null;
 
 
     public function __construct()
@@ -165,6 +176,18 @@ class Article extends AbstractTenantEntity implements TenantAwareInterface
                 $bloc->setArticle(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getTheme(): ?Theme
+    {
+        return $this->theme;
+    }
+
+    public function setTheme(?Theme $theme): static
+    {
+        $this->theme = $theme;
 
         return $this;
     }

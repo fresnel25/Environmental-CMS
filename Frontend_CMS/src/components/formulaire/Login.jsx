@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { useAuth } from "../../Auth/useAuth"; // chemin vers ton hook
+import { useAuth } from "../../Auth/useAuth";
+import { toast } from "react-toastify";
 import ButtonForm from "./composant_formulaire/ButtonForm";
 import InputForm from "./composant_formulaire/InputForm";
 import ImageForm from "./composant_formulaire/ImageForm";
@@ -19,10 +20,19 @@ const Login = () => {
     setError("");
 
     try {
-      const user = await login(email, password); // on récupère le user
-      navigate(`/dashboard/${user.tenantSlug}`);
+      const user = await login(email, password);
+
+      toast.success(`Bienvenue ${user.nom}`, { autoClose: 1500 });
+
+      setTimeout(() => {
+        if (user.roles.includes("ROLE_ABONNE")) {
+          navigate(`/articles/${user.tenantSlug}`);
+        } else {
+          navigate(`/dashboard/${user.tenantSlug}`);
+        }
+      }, 1500);
     } catch (err) {
-      setError("Identifiants incorrects");
+      toast.error("Identifiants incorrects");
     }
   };
 
@@ -34,7 +44,7 @@ const Login = () => {
           <div className="px-4 pt-4 flex flex-col gap-2 items-center font-bold">
             <h2 className="text-4xl text-black">Bienvenue sur</h2>
             <h3 className="text-2xl text-emerald-900">
-              Environ<span className="text-accent">_Data</span>
+              Dev<span className="text-accent">4Earth</span>
             </h3>
           </div>
           <figure>

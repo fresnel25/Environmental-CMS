@@ -1,26 +1,73 @@
 import { useState } from "react";
+import SelectInput from "../../Utils/SelectInput";
+import CardForm from "../../formulaire/composant_formulaire/CardForm";
+import Input from "../../Utils/Input";
+import Textarea from "../../Utils/Textarea";
 
+const Categorie = [
+  { label: "Dashboard", value: "dashboard" },
+  { label: "Article", value: "classic" },
+];
 
-export default function ArticleFormCreation({ initialData, onSubmit }) {
-  const [form, setForm] = useState(
-    initialData || { titre: "", resume: "", categorie: "classic", slug: "" }
-  );
+const ArticleFormCreation = ({ onSubmit }) => {
+  const [form, setForm] = useState({
+    titre: "",
+    resume: "",
+    categorie: "classic",
+    slug: "",
+  });
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
   return (
-    <form onSubmit={(e) => { e.preventDefault(); onSubmit(form); }}>
-      <input name="titre" value={form.titre} onChange={handleChange} placeholder="Titre" />
-      <input name="slug" value={form.slug} onChange={handleChange} placeholder="slug" />
-      <textarea name="resume" value={form.resume} onChange={handleChange} placeholder="Résumé" />
+    <CardForm title="Formulaire de création d'article">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          onSubmit(form);
+        }}
+      >
+        <Input
+          label="Titre Article"
+          name="titre"
+          value={form.titre}
+          onChange={handleChange}
+          placeholder="Titre article"
+        />
 
-      <select name="categorie" value={form.type} onChange={handleChange}>
-        <option value="classic">Article</option>
-        <option value="dashboard">Dashboard</option>
-      </select>
+        <Input
+          label="Slug Article"
+          name="slug"
+          value={form.slug}
+          onChange={handleChange}
+          placeholder="slug-article"
+        />
 
-      <button type="submit">Enregistrer</button>
-    </form>
+        <SelectInput
+          label="Type d'article"
+          options={Categorie}
+          value={form.categorie}
+          onChange={(value) => setForm({ ...form, categorie: value })}
+          placeholder="Choisir type article"
+        />
+
+        <Textarea
+          label="Resumé"
+          name="resume"
+          value={form.resume}
+          onChange={handleChange}
+          placeholder="Résumé"
+        />
+
+        <div className="flex justify-end mt-4">
+          <button type="submit" className="btn btn-primary">
+            Enregistrer l'article
+          </button>
+        </div>
+      </form>
+    </CardForm>
   );
-}
+};
+
+export default ArticleFormCreation;

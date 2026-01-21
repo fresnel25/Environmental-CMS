@@ -18,7 +18,7 @@ const CreateArticle = () => {
       <div>
         <Page_Title Title="Création d'article" />
       </div>
-      <div>
+      <div className="mt-5">
         <ArticleFormCreation onSubmit={handleSubmit} />
       </div>
     </div>

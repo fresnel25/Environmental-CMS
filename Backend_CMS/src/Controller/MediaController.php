@@ -16,6 +16,7 @@ final class MediaController extends AbstractController
 {
     #[IsGranted('ROLE_AUTEUR')]
     #[Route('/api/media/upload', methods: ['POST'])]
+
     public function upload(Request $request, EntityManagerInterface $em): Response
     {
         $file = $request->files->get('file');
@@ -24,7 +25,6 @@ final class MediaController extends AbstractController
             return $this->json(['error' => 'Aucun fichier reçu'], 400);
         }
 
-        //  Types autorisés (optionnel mais recommandé)
         $allowedMimeTypes = [
             'image/png',
             'image/jpeg',
@@ -36,28 +36,34 @@ final class MediaController extends AbstractController
             return $this->json(['error' => 'Type de fichier non autorisé'], 400);
         }
 
-        // Nom de fichier unique
-        $filename = uniqid('media_', true) . '.' . $file->guessExtension();
 
-        //  Déplacement du fichier
-        $file->move(
-            $this->getParameter('kernel.project_dir') . '/public/uploads/media',
-            $filename
-        );
+        $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
 
-        // Entité Media
+
+        $safeBase = preg_replace('/[\/\\\\:*?"<>|]/', '-', $originalName);
+        $safeBase = trim(preg_replace('/\s+/', ' ', $safeBase));
+
+
+        $ext = $file->guessExtension() ?? $file->getClientOriginalExtension() ?? 'bin';
+
+
+        $filename = sprintf('%s-%s.%s', $safeBase, substr(uniqid('', true), -6), $ext);
+
+        $uploadDir = $this->getParameter('kernel.project_dir') . '/public/uploads/media';
+
+
+        $file->move($uploadDir, $filename);
+
+
         $media = new Media();
-        $media->setTitre($filename);
-        $media->setTypeImg($file->getClientMimeType()); // IMPORTANT
+        $media->setTitre($safeBase);
+        $media->setTypeImg($file->getClientMimeType());
         $media->setLien('/uploads/media/' . $filename);
 
         /** @var User $user */
         $user = $this->getUser();
-
-        // Si tu as tenant + createdBy
         if ($user) {
             $media->setCreatedBy($user);
-
             if (method_exists($media, 'setTenant') && method_exists($user, 'getTenant')) {
                 $media->setTenant($user->getTenant());
             }

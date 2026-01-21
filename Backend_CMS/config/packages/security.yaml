@@ -10,6 +10,11 @@ security:
         class: App\Entity\User
         property: email
   firewalls:
+    public:
+      pattern: ^/api/public
+      stateless: true
+      security: false
+
     dev:
       pattern: ^/(_(profiler|wdt)|css|images|js)/
       security: false
@@ -63,6 +68,7 @@ security:
     - { path: ^/api/tenants, roles: PUBLIC_ACCESS }
     - { path: ^/api/articles, roles: PUBLIC_ACCESS }
     - { path: ^/api/media, roles: PUBLIC_ACCESS }
+    - { path: ^/api/visualisations, roles: PUBLIC_ACCESS }
 
     - { path: ^/api/login_check, roles: PUBLIC_ACCESS }
     - { path: ^/api/docs, roles: PUBLIC_ACCESS }
@@ -74,7 +80,8 @@ security:
     ROLE_EDITEUR: [ROLE_AUTEUR]
     ROLE_DESIGNER: []
     ROLE_FOURNISSEUR_DONNEES: []
-    ROLE_ADMINISTRATEUR: [ROLE_EDITEUR, ROLE_DESIGNER, ROLE_FOURNISSEUR_DONNEES, ROLE_AUTEUR]
+    ROLE_ADMINISTRATEUR:
+      [ROLE_EDITEUR, ROLE_DESIGNER, ROLE_FOURNISSEUR_DONNEES, ROLE_AUTEUR]
     ROLE_SUPER_ADMIN: [ROLE_ADMINISTRATEUR]
 
 when@test:

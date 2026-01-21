@@ -5,7 +5,7 @@ import { useAuth } from "../../Auth/AuthProvider";
 import { useEffect } from "react";
 
 const Layout = () => {
-  const { tenantSlug } = useParams(); // récupère :tenantSlug
+  const { tenantSlug } = useParams(); 
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -28,7 +28,7 @@ const Layout = () => {
       <Sidenav tenantSlug={tenantSlug} />
 
       <div className="flex flex-col flex-1 bg-neutral-200 text-black">
-        <Header />
+        <Header name={user.prenom[0]} prenom= {user.nom[0]} />
         <div className="flex-1 min-h-0 overflow-y-auto p-4">
           <Outlet />
         </div>

@@ -1,5 +1,3 @@
-import React from "react";
-
 const CardTable = ({ columns = [], data = [] }) => {
   return (
     <div className="card mt-5">

@@ -1,6 +1,12 @@
+import { useNavigate, useParams } from "react-router-dom";
 import { deleteBloc } from "../../API/blocApi";
+import MediaPreview from "../Media/MediaPreview";
+import VisualisationRenderer from "../Visualisation/VisualisationRenderer";
 
 const GetAllBlocsArticle = ({ blocs, onChange }) => {
+  const navigate = useNavigate();
+  const { tenantSlug } = useParams();
+
   const handleDelete = async (id) => {
     await deleteBloc(id);
     onChange();
@@ -15,34 +21,43 @@ const GetAllBlocsArticle = ({ blocs, onChange }) => {
       <ul className="space-y-3">
         {blocs.map((bloc) => (
           <li key={bloc.id} className="border p-3 rounded">
-            <div className="flex justify-between">
-              <span className="font-semibold">
-                {bloc.type_bloc}
-              </span>
+            <div className="flex justify-between items-center">
+              <span className="font-semibold">{bloc.type_bloc}</span>
 
-              <button
-                onClick={() => handleDelete(bloc.id)}
-                className="btn btn-xs btn-error"
-              >
-                Supprimer
-              </button>
+              <div className="flex gap-2">
+                <button
+                  className="btn btn-xs btn-outline"
+                  onClick={() =>
+                    navigate(
+                      `/dashboard/${tenantSlug}/designer/bloc/${bloc.id}`,
+                    )
+                  }
+                >
+                  Designer le bloc
+                </button>
+
+                <button
+                  onClick={() => handleDelete(bloc.id)}
+                  className="btn btn-xs btn-error"
+                >
+                  Supprimer
+                </button>
+              </div>
             </div>
 
-            {/* APERÇU */}
+           
             {bloc.type_bloc === "text" && (
               <p className="mt-2">{bloc.contenu_json?.text}</p>
             )}
 
-            {bloc.type_bloc === "media" && (
-              <p className="mt-2 text-sm italic">
-                Media lié (ID {bloc.media?.id})
-              </p>
+            {/* MEDIA */}
+            {bloc.type_bloc === "image" && bloc.media && (
+              <MediaPreview mediaId={bloc.media.id} />
             )}
 
-            {bloc.type_bloc === "visualisation" && (
-              <p className="mt-2 text-sm italic">
-                Visualisation liée
-              </p>
+            {/* VISUALISATION */}
+            {bloc.type_bloc === "visualisation" && bloc.visualisation && (
+              <VisualisationRenderer visualisationId={bloc.visualisation.id} />
             )}
           </li>
         ))}

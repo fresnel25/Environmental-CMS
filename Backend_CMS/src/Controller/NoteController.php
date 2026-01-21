@@ -2,80 +2,86 @@
 
 namespace App\Controller;
 
+use App\Entity\Bloc;
 use App\Entity\Note;
-use App\Form\NoteType;
-use App\Repository\NoteRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[Route('/note')]
 final class NoteController extends AbstractController
 {
-    #[Route(name: 'app_note_index', methods: ['GET'])]
-    public function index(NoteRepository $noteRepository): Response
-    {
-        return $this->render('note/index.html.twig', [
-            'notes' => $noteRepository->findAll(),
-        ]);
-    }
-
-    #[Route('/new', name: 'app_note_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
-    {
-        $note = new Note();
-        $form = $this->createForm(NoteType::class, $note);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($note);
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_note_index', [], Response::HTTP_SEE_OTHER);
+    #[IsGranted('ROLE_ABONNE')]
+    #[Route('/api/blocs/{id}/note', name: 'api_bloc_noter', methods: ['POST'])]
+    public function noterBloc(
+        Bloc $bloc,
+        Request $request,
+        EntityManagerInterface $em,
+        Security $security
+    ): JsonResponse {
+        $user = $security->getUser();
+        if (!$user) {
+            return new JsonResponse(['message' => 'Unauthorized'], 401);
         }
 
-        return $this->render('note/new.html.twig', [
-            'note' => $note,
-            'form' => $form,
-        ]);
-    }
+        $data = json_decode($request->getContent(), true) ?? [];
+        $valeur = $data['valeur'] ?? null;
 
-    #[Route('/{id}', name: 'app_note_show', methods: ['GET'])]
-    public function show(Note $note): Response
-    {
-        return $this->render('note/show.html.twig', [
-            'note' => $note,
-        ]);
-    }
-
-    #[Route('/{id}/edit', name: 'app_note_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Note $note, EntityManagerInterface $entityManager): Response
-    {
-        $form = $this->createForm(NoteType::class, $note);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_note_index', [], Response::HTTP_SEE_OTHER);
+        // Validation forte
+        if (!is_numeric($valeur)) {
+            return new JsonResponse(['message' => 'Valeur manquante ou invalide'], 400);
+        }
+        $valeur = (int) $valeur;
+        if ($valeur < 1 || $valeur > 5) {
+            return new JsonResponse(['message' => 'Note invalide (1 à 5)'], 400);
         }
 
-        return $this->render('note/edit.html.twig', [
-            'note' => $note,
-            'form' => $form,
+        // 1 abonné = 1 note (aligner la propriété: createdBy vs user)
+        $note = $em->getRepository(Note::class)->findOneBy([
+            'bloc' => $bloc,
+            'createdBy' => $user, // <-- adapte si ta propriété est 'user'
+        ]);
+
+        if (!$note) {
+            $note = new Note();
+            $note->setBloc($bloc);
+            $note->setCreatedBy($user); // <-- adapte si 'setUser'
+        }
+
+        $note->setValeur($valeur);
+        $em->persist($note);
+        $em->flush();
+
+        // Calcul de la moyenne (arrondi à 2 décimales)
+        $avg = (float) $em->createQuery(
+            'SELECT AVG(n.valeur) FROM App\Entity\Note n WHERE n.bloc = :bloc'
+        )->setParameter('bloc', $bloc)->getSingleScalarResult();
+
+        return new JsonResponse([
+            'success' => true,
+            'note'    => $valeur,
+            'moyenne' => round($avg, 2),
         ]);
     }
 
-    #[Route('/{id}', name: 'app_note_delete', methods: ['POST'])]
-    public function delete(Request $request, Note $note, EntityManagerInterface $entityManager): Response
+    #[Route('/api/bloc/{id}', name: 'get_bloc_note', methods: ['GET'])]
+    public function getNote(Bloc $bloc,  EntityManagerInterface $em): JsonResponse
     {
-        if ($this->isCsrfTokenValid('delete'.$note->getId(), $request->getPayload()->getString('_token'))) {
-            $entityManager->remove($note);
-            $entityManager->flush();
+        $user = $this->getUser();
+        if (!$user) {
+            return $this->json(['error' => 'Utilisateur non connecté'], 401);
         }
 
-        return $this->redirectToRoute('app_note_index', [], Response::HTTP_SEE_OTHER);
+        $note = $em->getRepository(Note::class)->findOneBy([
+            'bloc' => $bloc,
+            'createdBy' => $user, // attention au champ exact selon ton entité
+        ]);
+
+        return $this->json([
+            'ma_note' => $note ? $note->getValeur() : null
+        ]);
     }
 }

@@ -1,15 +1,29 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, useParams } from "react-router-dom";
 import { useAuth } from "./AuthProvider";
 
 export const ProtectedRoute = ({ children, roles = [] }) => {
   const { user, loading } = useAuth();
+  const { tenantSlug } = useParams();
 
-  // ⚡ si on est encore en train de charger, ne rien afficher
   if (loading) return null;
 
-  if (!user) return <Navigate to="/login" replace />;
-  if (roles.length && !roles.some((r) => user.roles.includes(r)))
-    return <Navigate to="/unauthorized" replace />;
+  // Non connecté
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
 
+  // Connecté mais rôle interdit
+  if (roles.length && !roles.some((r) => user.roles.includes(r))) {
+    return (
+      <Navigate
+        to={
+          tenantSlug ? `/dashboard/${tenantSlug}/unauthorized` : "/unauthorized"
+        }
+        replace
+      />
+    );
+  }
+
+  // Autorisé
   return children;
 };

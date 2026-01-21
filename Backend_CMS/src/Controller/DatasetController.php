@@ -19,8 +19,7 @@ class DatasetController extends AbstractController
     #[IsGranted('ROLE_EDITEUR')]
     public function analyseDataset(
         Request $request,
-        EntityManagerInterface $em,
-        HttpClientInterface $httpClient
+        EntityManagerInterface $em
     ): Response {
         $data = json_decode($request->getContent(), true);
 
@@ -36,6 +35,10 @@ class DatasetController extends AbstractController
         $dataset->setTypeSource($type);
         $dataset->setUrlSource($data['url_source'] ?? null);
 
+        if ($type === 'csv') {
+            $dataset->setDelimiter($data['delimiter'] ?? ';');
+        }
+
         /** @var User $user */
         $user = $this->getUser();
         $dataset->setTenant($user->getTenant());
@@ -44,11 +47,7 @@ class DatasetController extends AbstractController
         $em->persist($dataset);
 
         if ($type === 'csv') {
-            $this->analyseCsv($dataset, $data, $em);
-        }
-
-        if ($type === 'api') {
-            $this->analyseApi($dataset, $data, $httpClient, $em);
+            $this->analyseCsv($dataset, $em);
         }
 
         $em->flush();
@@ -57,77 +56,58 @@ class DatasetController extends AbstractController
     }
 
 
-    private function analyseCsv(Dataset $dataset, array $data, EntityManagerInterface $em): void
-    {
-        $delimiter = $data['delimiter'] ?? null;
 
-        $handle = @fopen($dataset->getUrlSource(), 'r');
+
+    private function analyseCsv(Dataset $dataset, EntityManagerInterface $em): void
+    {
+        $url = $dataset->getUrlSource();
+        $delimiter = $dataset->getDelimiter() ?? ';';
+
+        // 🔹 Déterminer le handle
+        if (str_starts_with($url, 'http')) {
+            $handle = @fopen($url, 'r');
+        } else {
+            $path = $this->getParameter('kernel.project_dir') . '/public' . $url;
+
+            if (!file_exists($path)) {
+                throw new \RuntimeException("CSV introuvable : $path");
+            }
+
+            $handle = fopen($path, 'r');
+        }
 
         if (!$handle) {
-            throw new \RuntimeException('Impossible d’ouvrir la source CSV');
+            throw new \RuntimeException("Impossible d’ouvrir le CSV");
         }
 
-        // 🔹 Lire la première ligne brute
-        $firstLine = fgets($handle);
+        // 🔹 Lecture de l’en-tête
+        $headers = fgetcsv($handle, 0, $delimiter);
 
-        if (
-            str_contains($firstLine, '<html')
-            || str_contains($firstLine, '<!DOCTYPE')
-        ) {
+        if (!$headers || count($headers) === 0) {
             fclose($handle);
-            throw new \RuntimeException(
-                'La source ne retourne pas un CSV mais du HTML'
-            );
+            throw new \RuntimeException("CSV vide ou invalide");
         }
 
-        // 🔥 Supprimer BOM UTF-8
-        $firstLine = preg_replace('/^\xEF\xBB\xBF/', '', $firstLine);
+        // 🔹 Lecture d’un échantillon
+        $sampleRow = fgetcsv($handle, 0, $delimiter) ?: [];
 
-        // 🔎 Auto-détection du delimiter si absent ou incorrect
-        if (!$delimiter) {
-            $delimiter = str_contains($firstLine, ';') ? ';' : ',';
-        }
+        foreach ($headers as $index => $header) {
+            $value = $sampleRow[$index] ?? null;
 
-        $dataset->setDelimiter($delimiter);
+            $type = $this->guessType($value);
 
-        // 🔹 Interpréter l’en-tête CSV
-        $headers = str_getcsv($firstLine, $delimiter);
+            $colonne = new ColonneDataset();
+            $colonne->setNomColonne(trim($header));
+            $colonne->setTypeColonne($type);
+            $colonne->setDataset($dataset);
 
-        if (!$headers || count($headers) < 1) {
-            fclose($handle);
-            throw new \RuntimeException('En-tête CSV invalide');
-        }
-
-        // 🔹 Lire des échantillons (20 lignes max)
-        $samples = [];
-        for ($i = 0; $i < 20 && ($row = fgetcsv($handle, 0, $delimiter)); $i++) {
-            foreach ($row as $index => $value) {
-                $samples[$index][] = $value;
-            }
+            $em->persist($colonne);
         }
 
         fclose($handle);
-
-        // 🔹 Créer les colonnes
-        foreach ($headers as $index => $name) {
-            $name = trim($name);
-            $name = mb_substr($name, 0, 200); // sécurité DB
-
-            if ($name === '') {
-                continue;
-            }
-
-            $col = new ColonneDataset();
-            $col->setNomColonne($name);
-            $col->setTypeColonne(
-                $this->detectType($samples[$index] ?? [])
-            );
-            $col->setDataset($dataset);
-            $col->setTenant($dataset->getTenant());
-
-            $em->persist($col);
-        }
     }
+
+
 
 
 
@@ -170,33 +150,18 @@ class DatasetController extends AbstractController
             $em->persist($col);
         }
     }
-
-    private function detectType(array $values): string
+    private function guessType(?string $value): string
     {
-        $values = array_filter($values, fn($v) => $v !== null && $v !== '');
-
-        if (empty($values)) {
+        if ($value === null || $value === '') {
             return 'string';
         }
 
-        $isNumeric = true;
-        $isDate = true;
-
-        foreach ($values as $value) {
-            if (!is_numeric($value)) {
-                $isNumeric = false;
-            }
-
-            if (strtotime($value) === false) {
-                $isDate = false;
-            }
-        }
-
-        if ($isNumeric) {
+        if (is_numeric($value)) {
             return 'number';
         }
 
-        if ($isDate) {
+        // Date simple YYYY-MM-DD
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $value)) {
             return 'date';
         }
 

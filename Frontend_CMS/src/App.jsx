@@ -29,6 +29,12 @@ import Page404 from "./components/Page404/Page404";
 import ArticlesNotes from "./components/Article/ArticlesNotes";
 import AbonneLayout from "./components/Layout/AbonneLayout";
 import PublicTenantLayout from "./components/Layout/PublicTenantLayout";
+import ThemeEditor from "./components/Apparence/ThemeEditor";
+import Index from "./components/HomeApp/Index";
+import Home from "./components/HomeApp/Home";
+import Features from "./components/HomeApp/Features";
+import PricingSection from "./components/HomeApp/PricingSection";
+import Signup from "./components/HomeApp/Signup";
 
 function App() {
   return (
@@ -37,11 +43,16 @@ function App() {
         <BrowserRouter>
           <ToastContainer />
           <Routes>
+            <Route path="/" element={<Index />}>
+              <Route index element={<Home />} />
+              <Route path="/features" element={<Features />} />
+              <Route path="/pricing" element={<PricingSection />} />
+              <Route path="/signup" element={<Signup />} />
+            </Route>
 
             {/* Routes publiques */}
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-  
 
             {/* PUBLIC TENANT */}
             <Route path="/:tenantSlug" element={<PublicTenantLayout />}>
@@ -116,6 +127,15 @@ function App() {
                     <DetailArticle />
                   </ProtectedRoute>
                 }
+              />
+
+              <Route
+                path="designer/article/:id"
+                element={<ThemeEditor scope="article" />}
+              />
+              <Route
+                path="designer/bloc/:id"
+                element={<ThemeEditor scope="bloc" />}
               />
 
               {/*  Auteurs, éditeurs, admins */}
@@ -268,7 +288,6 @@ function App() {
 
               <Route path="supports" element={<Support />} />
             </Route>
-            
           </Routes>
         </BrowserRouter>
       </AuthProvider>
