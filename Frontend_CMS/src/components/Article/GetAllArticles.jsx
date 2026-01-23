@@ -185,7 +185,7 @@ const GetAllArticles = () => {
               <option value="">Choisir une visualisation</option>
               {visualisations.map((v) => (
                 <option key={v.id} value={v["@id"]}>
-                  {v.titre}
+                  {v.note}
                 </option>
               ))}
             </select>

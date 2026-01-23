@@ -5,6 +5,7 @@ import { createVisualisation } from "../../API/visualisationApi";
 import SelectInput from "../Utils/SelectInput";
 import CardForm from "../formulaire/composant_formulaire/CardForm";
 import Page_Title from "../Page-Title/Page_Title";
+import Input from "../Utils/Input";
 
 const TYPE_OPTIONS = [
   { label: "Barres", value: "bar" },
@@ -21,13 +22,9 @@ const CreateVisual = () => {
   const [datasetIri, setDatasetIri] = useState("");
 
   const [type, setType] = useState("");
+  const [note, setNote] = useState("");
   const [x, setX] = useState("");
   const [y, setY] = useState("");
-
-  const [title, setTitle] = useState("");
-  const [palette, setPalette] = useState(["#3B82F6"]);
-  const [currentColor, setCurrentColor] = useState("#3B82F6");
-  const [showLegend, setShowLegend] = useState(true);
 
   useEffect(() => {
     getAllDatasets().then((res) => {
@@ -69,7 +66,7 @@ const CreateVisual = () => {
       dataset: datasetIri,
       type_visualisation: type,
       correspondance_json: type === "pie" ? { label: x, value: y } : { x, y },
-      note: "test",
+      note: note,
     };
 
     await createVisualisation(payload);
@@ -84,7 +81,14 @@ const CreateVisual = () => {
       <Page_Title Title="Créer une visualisation" />
 
       <div className="mt-6">
-        <CardForm>
+        <CardForm title="Formulaire de création de visualisation">
+          <Input
+            label="Nom de la visualisation"
+            placeholder="Entrez un nom"
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            type="text"
+          />
           {/* DATASET */}
           <SelectInput
             label="Dataset"
@@ -160,7 +164,6 @@ const CreateVisual = () => {
               />
             </>
           )}
-
 
           <div className="flex justify-end mt-4">
             <button onClick={handleSubmit} className="btn btn-primary">

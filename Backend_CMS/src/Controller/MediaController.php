@@ -25,14 +25,11 @@ final class MediaController extends AbstractController
             return $this->json(['error' => 'Aucun fichier reçu'], 400);
         }
 
-        $allowedMimeTypes = [
-            'image/png',
-            'image/jpeg',
-            'image/webp',
-            'image/gif',
-        ];
 
-        if (!in_array($file->getClientMimeType(), $allowedMimeTypes, true)) {
+        $allowedImageTypes = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
+        $allowedVideoTypes = ['video/mp4', 'video/webm', 'video/ogg'];
+
+        if (!in_array($file->getClientMimeType(), [...$allowedImageTypes, ...$allowedVideoTypes], true)) {
             return $this->json(['error' => 'Type de fichier non autorisé'], 400);
         }
 
